@@ -4,9 +4,6 @@ import sys
 
 
 def tokenize(template):
-    class EOF(Exception):
-        pass
-
     class UnclosedSection(Exception):
         pass
 
@@ -16,7 +13,7 @@ def tokenize(template):
     def look(ahead=0, amount=1):
         idx = current + ahead
         if idx > len(template):
-            raise EOF()
+            raise EOFError()
 
         return template[idx:idx + amount]
 
@@ -40,7 +37,7 @@ def tokenize(template):
             size = 0
             while look(size, 2) != l_del:
                 size += 1
-        except EOF:
+        except EOFError:
             yield ('literal', get(size))
             return
 
