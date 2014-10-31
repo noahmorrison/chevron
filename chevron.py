@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys
+from sys import argv
 
 
 def tokenize(template):
@@ -81,8 +81,8 @@ def tokenize(template):
 
 
 if __name__ == '__main__':
-    data = sys.argv[1]
-    template = sys.argv[2]
+    data = argv[1]
+    template = argv[2]
 
     with open(template, 'r') as f:
         template = f.read()
