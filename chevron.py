@@ -7,6 +7,9 @@ def tokenize(template):
     class EOF(Exception):
         pass
 
+    class UnclosedSection(Exception):
+        pass
+
     def get(amount=1):
         return template[current:current + amount]
 
@@ -29,6 +32,7 @@ def tokenize(template):
     }
 
     current = 0
+    open_sections = []
     l_del = '{{'
     r_del = '}}'
     while current < len(template):
@@ -65,6 +69,14 @@ def tokenize(template):
             if look(-3) == '=':
                 l_del, r_del = tag_key[:-1].split(' ')
                 continue
+
+        elif tag_type in ['section', 'inverted section']:
+            open_sections.append(tag_key)
+
+        elif tag_type == 'end':
+            last_section = open_sections.pop()
+            if tag_key != last_section:
+                raise UnclosedSection()
 
         yield (tag_type, tag_key)
 
