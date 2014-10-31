@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import sys
+
 
 def tokenize(template):
     class EOF(Exception):
@@ -70,7 +72,10 @@ def tokenize(template):
 
 
 if __name__ == '__main__':
-    with open('test.mustache', 'r') as f:
+    data = sys.argv[1]
+    template = sys.argv[2]
+
+    with open(template, 'r') as f:
         template = f.read()
 
     tokens = tokenize(template)

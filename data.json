@@ -1,0 +1,7 @@
+{
+  "thing": "world",
+  "html_escaped": "<b>no escape!</b>",
+  "html_escaped2": "<i>ok</i>",
+  "show": true,
+  "delimiter": "custom delimiters work!"
+}
