@@ -3,4 +3,6 @@ A python3 implementation of the [mustache templating language](http://mustache.g
 Currently it only tokenizes the template file.
 
 Current usage:
+```
     ./chevron.py [data file] [template file]
+```
