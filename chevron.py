@@ -5,6 +5,31 @@ from io import StringIO
 
 
 def tokenize(template):
+    """Tokenize a mustache template
+
+    Tokenizes a mustache template in a generator fashion,
+    using file-like objects. It also accepts a string containing
+    the template.
+
+    Arguments:
+    template -- a file-like object, or a string of a mustache template
+
+    Returns:
+    A generator of mustache tags in the form of a tuple
+    -- (tag_type, tag_key)
+
+    Where tag_type is one of:
+     * literal
+     * comment
+     * section
+     * inverted section
+     * end
+     * partial
+     * no escape
+    And tag_key is either the key or in the case of a literal tag,
+    the literal itself.
+    """
+
     class UnclosedSection(Exception):
         pass
 
