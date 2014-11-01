@@ -20,7 +20,6 @@ def tokenize(template):
 
     Where tag_type is one of:
      * literal
-     * comment
      * section
      * inverted section
      * end
@@ -108,7 +107,8 @@ def tokenize(template):
             if tag_key != last_section:
                 raise UnclosedSection()
 
-        yield (tag_type, tag_key)
+        if tag_type != 'comment':
+            yield (tag_type, tag_key)
 
     if open_sections:
         raise UnclosedSection()
