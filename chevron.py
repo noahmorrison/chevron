@@ -1,7 +1,10 @@
 #!/usr/bin/python
 
+import json
+
 from sys import argv
 from io import StringIO
+from cgi import escape as html_escape
 
 
 def tokenize(template):
@@ -80,6 +83,8 @@ def tokenize(template):
             return
 
         if literal:
+            if len(literal) > 1 and literal.startswith('\n'):
+                literal = literal[1:]
             yield ('literal', literal)
 
         tag_type = tag_types.get(peek(0, 1), 'variable')
@@ -114,11 +119,63 @@ def tokenize(template):
         raise UnclosedSection()
 
 
+def render(template, data, partials_path='.', partials_ext='mustache'):
+    def get_key(key):
+        for scope in scopes:
+            try:
+                for key in key.split('.'):
+                    scope = scope[key]
+                return scope
+            except (TypeError, KeyError):
+                pass
+
+    def get_partial(path):
+        return partials_path + '/' + path + '.' + partials_ext
+
+    tokens = tokenize(template)
+
+    output = ''
+    if type(data) is list:
+        scopes = data
+    else:
+        scopes = [data]
+
+    for tag, key in tokens:
+        if tag == 'end':
+            scopes = scopes[1:]
+
+        elif not scopes[0]:
+            pass
+
+        elif tag == 'literal':
+            output += key
+
+        elif tag == 'variable':
+            output += html_escape(get_key(key))
+
+        elif tag == 'no escape':
+            output += get_key(key)
+
+        elif tag == 'section':
+            scope = get_key(key)
+            scopes.insert(0, scope)
+
+        elif tag == 'inverted section':
+            scope = get_key(key)
+            scopes.insert(0, not scope)
+
+        elif tag == 'partial':
+            partial = get_partial(key)
+            output += render(open(partial, 'r'), scopes)
+
+        else:
+            print('>>', tag)
+
+    return output
+
 if __name__ == '__main__':
     data = argv[1]
     template = argv[2]
 
-    tokens = tokenize(open(template, 'r'))
-
-    for token in tokens:
-        print(token)
+    output = render(open(template, 'r'), json.load(open(data, 'r')))
+    print(output)
