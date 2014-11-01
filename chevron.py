@@ -34,7 +34,11 @@ def tokenize(template):
         pass
 
     def get(amount=1):
-        return template.read(amount)
+        data = template.read(amount)
+        if len(data) != amount:
+            raise EOFError()
+
+        return data
 
     def peek(ahead=0, amount=1):
         current = template.tell()
@@ -44,6 +48,14 @@ def tokenize(template):
         if len(data) != amount:
             raise EOFError()
         return data
+
+    def grab_literal(until=None):
+        until = until or l_del
+        literal = get()
+        while literal[-2:] != until:
+            literal += get()
+
+        return literal[:-2]
 
     tag_types = {
         '!': 'comment',
@@ -64,27 +76,18 @@ def tokenize(template):
     r_del = '}}'
     while not template.closed:
         try:
-            size = 0
-            while peek(size, 2) != l_del:
-                size += 1
+            literal = grab_literal()
         except EOFError:
-            yield ('literal', get(size))
             return
 
-        if size != 0:
-            yield ('literal', get(size))
-
-        get(2)
+        if literal:
+            yield ('literal', literal)
 
         tag_type = tag_types.get(peek(0, 1), 'variable')
         if tag_type != 'variable':
             template.seek(template.tell() + 1)
 
-        size = 0
-        while peek(size, 2) != r_del:
-            size += 1
-
-        tag_key = get(size).strip()
+        tag_key = grab_literal(r_del).strip()
 
         if tag_type == 'no escape?':
             if peek(0, 3) == '}}}':
@@ -105,13 +108,10 @@ def tokenize(template):
             if tag_key != last_section:
                 raise UnclosedSection()
 
-        get(2)
         yield (tag_type, tag_key)
 
     if open_sections:
         raise UnclosedSection()
-
-    return
 
 
 if __name__ == '__main__':
