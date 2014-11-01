@@ -16,9 +16,9 @@ def _test_case_from_path(json_path):
         def _test_from_object(obj):
             """Generate a unit test from a test object"""
             def test_case(self):
-                """A simple test case"""
                 self.assertEqual(STACHE(obj['template'], obj['data']),
                                  obj['expected'])
+            test_case.__doc__ = 'suite: {}    desc: {}'.format(spec, obj['desc'])
             return test_case
         with open(json_path, 'r') as f:
             yaml = json.load(f)
