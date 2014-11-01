@@ -90,7 +90,7 @@ def tokenize(template):
         tag_key = grab_literal(r_del).strip()
 
         if tag_type == 'no escape?':
-            if peek(0, 3) == '}}}':
+            if peek(0, 1) == '}':
                 tag_type = 'no escape'
                 get(1)
 
