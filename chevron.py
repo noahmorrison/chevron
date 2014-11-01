@@ -38,7 +38,7 @@ def tokenize(template):
     def get(amount=1):
         data = template.read(amount)
         if len(data) != amount:
-            raise EOFError()
+            template.close()
 
         return data
 
@@ -54,10 +54,14 @@ def tokenize(template):
     def grab_literal(until=None):
         until = until or l_del
         literal = get()
-        while literal[-2:] != until:
+        while not template.closed:
+            if literal[-2:] == until:
+                return literal[:-2]
+
             literal += get()
 
-        return literal[:-2]
+        return literal
+
 
     tag_types = {
         '!': 'comment',
@@ -77,15 +81,15 @@ def tokenize(template):
     l_del = '{{'
     r_del = '}}'
     while not template.closed:
-        try:
-            literal = grab_literal()
-        except EOFError:
-            return
+        literal = grab_literal()
 
-        if literal:
-            if len(literal) > 1 and literal.startswith('\n'):
-                literal = literal[1:]
+        if literal == '':
+            continue
+        else:
             yield ('literal', literal)
+
+        if template.closed:
+            break
 
         tag_type = tag_types.get(peek(0, 1), 'variable')
         if tag_type != 'variable':
@@ -144,7 +148,7 @@ def render(template, data, partials_path='.', partials_ext='mustache'):
         if tag == 'end':
             scopes = scopes[1:]
 
-        elif not scopes[0]:
+        elif not scopes[0] and len(scopes) != 1:
             pass
 
         elif tag == 'literal':
