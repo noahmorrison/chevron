@@ -62,7 +62,6 @@ def tokenize(template):
 
         return literal
 
-
     tag_types = {
         '!': 'comment',
         '#': 'section',
@@ -124,6 +123,31 @@ def tokenize(template):
 
 
 def render(template, data, partials_path='.', partials_ext='mustache'):
+    """Render a mustache template.
+
+    Renders a mustache template with a data scope and partial capability.
+    Given the file structure...
+    .
+    |- main.py
+    |- main.ms
+    |- partials
+     |- part.ms
+
+    then main.py would make the following call:
+
+    render(open('main.ms', 'r'), {...}, 'partials', 'ms')
+
+    Arguments:
+    template      -- A file-like object or a string containing the template
+    data          -- A python dictionary with your data scope
+    partials_path -- The path to where your partials are stored
+                     (defaults to '.')
+    partials_ext  -- The extension that you want the parser to look for
+                     (defaults to 'mustache')
+
+    Returns:
+    A string containing the rendered template.
+    """
     def get_key(key):
         for scope in scopes:
             try:
