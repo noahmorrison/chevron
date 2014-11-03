@@ -1,4 +1,4 @@
-A python3 implementation of the [mustache templating language](http://mustache.github.io).
+A python implementation of the [mustache templating language](http://mustache.github.io).
 
 Current commandline usage:
 ```
