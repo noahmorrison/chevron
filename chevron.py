@@ -82,9 +82,7 @@ def tokenize(template):
     while not template.closed:
         literal = grab_literal()
 
-        if literal == '':
-            continue
-        else:
+        if literal != '':
             yield ('literal', literal)
 
         if template.closed:
