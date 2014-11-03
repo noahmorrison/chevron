@@ -2,7 +2,7 @@ A python3 implementation of the [mustache templating language](http://mustache.g
 
 Current commandline usage:
 ```
-    ./chevron.py [data file] [template file]
+    ./entei.py [data file] [template file]
 ```
 
 TODO

@@ -3,7 +3,7 @@ import unittest
 import os
 import json
 
-from chevron import render
+from entei import render
 
 SPECS_PATH = os.path.join('spec', 'specs')
 SPECS = [path for path in os.listdir(SPECS_PATH) if path.endswith('.json')]
