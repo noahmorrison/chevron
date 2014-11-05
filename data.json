@@ -2,6 +2,7 @@
   "thing": "world",
   "html_escaped": "<b>no escape!</b>",
   "html_escaped2": "<i>ok</i>",
+  "html_escaped3": "<i> this is escaped though </i>",
   "show": true,
   "delimiter": {
     "1": "do delimiters work?",

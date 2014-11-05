@@ -4,7 +4,6 @@ import json
 
 from sys import argv
 from io import StringIO
-from cgi import escape as html_escape
 
 
 def tokenize(template):
@@ -146,6 +145,23 @@ def render(template, data, partials_path='.', partials_ext='mustache'):
     Returns:
     A string containing the rendered template.
     """
+
+    def html_escape(string):
+        html_codes = {
+            '"': '$quot;',
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+        }
+
+        def escape_char(char):
+            return html_codes.get(char, char)
+
+        try:
+            return ''.join(map(escape_char, string))
+        except TypeError:
+            return ''
+
     def get_key(key):
         for scope in scopes:
             try:
