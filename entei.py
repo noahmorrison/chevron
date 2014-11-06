@@ -63,8 +63,10 @@ def tokenize(template):
         '&': 'no escape'
     }
 
-    if type(template) is str:
+    try:
         template = StringIO(template)
+    except TypeError:
+        pass
 
     open_sections = []
     l_del = '{{'
