@@ -83,7 +83,8 @@ def tokenize(template):
         if tag_type != 'variable':
             tag_key = ''
 
-        tag_key += grab_literal(r_del).strip()
+        tag_key += grab_literal(r_del)
+        tag_key = tag_key.strip()
 
         if tag_type == 'no escape?':
             if get(1) == '}':
