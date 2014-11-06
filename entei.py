@@ -45,8 +45,8 @@ def tokenize(template):
         until = until or l_del
         literal = get()
         while not template.closed:
-            if literal[-2:] == until:
-                return literal[:-2]
+            if literal[-len(until):] == until:
+                return literal[:-len(until)]
 
             literal += get()
 
@@ -96,8 +96,8 @@ def tokenize(template):
 
         elif tag_type == 'set delimiter?':
             if tag_key[-1] == '=':
-                l_del, r_del = tag_key[:-1].split(' ')
-                get(2)
+                dels = tag_key[:-1].strip().split(' ')
+                l_del, r_del = dels[0], dels[-1]
                 continue
 
         elif tag_type in ['section', 'inverted section']:
