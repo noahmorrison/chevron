@@ -11,21 +11,30 @@ STACHE = render
 
 
 def _test_case_from_path(json_path):
+
     class MustacheTestCase(unittest.TestCase):
         """A simple yaml based test case"""
+
         def _test_from_object(obj):
             """Generate a unit test from a test object"""
+
             def test_case(self):
-                self.assertEqual(STACHE(obj['template'], obj['data']),
-                                 obj['expected'])
+                result = STACHE(obj['template'], obj['data'],
+                                partials_dict=obj.get('partials', {}))
+
+                self.assertEqual(result, obj['expected'])
+
             test_case.__doc__ = 'suite: {}    desc: {}'.format(spec,
                                                                obj['desc'])
             return test_case
+
         with open(json_path, 'r') as f:
             yaml = json.load(f)
+
         # Generates a unit test for each test object
         for test in yaml['tests']:
             vars()['test_'+test['name']] = _test_from_object(test)
+
     # Return the built class
     return MustacheTestCase
 
