@@ -115,7 +115,8 @@ def tokenize(template):
         raise UnclosedSection()
 
 
-def render(template, data, partials_path='.', partials_ext='mustache'):
+def render(template, data, partials_path='.', partials_ext='mustache',
+           partials_dict={}):
     """Render a mustache template.
 
     Renders a mustache template with a data scope and partial capability.
@@ -137,6 +138,10 @@ def render(template, data, partials_path='.', partials_ext='mustache'):
                      (defaults to '.')
     partials_ext  -- The extension that you want the parser to look for
                      (defaults to 'mustache')
+    partials_dict -- A python dictionary which will be search for partials
+                     before the filesystem is. {'include': 'foo'} is the same
+                     as a file called include.mustache
+                     (defaults to {})
 
     Returns:
     A string containing the rendered template.
@@ -167,8 +172,12 @@ def render(template, data, partials_path='.', partials_ext='mustache'):
             except (TypeError, KeyError):
                 pass
 
-    def get_partial(path):
-        return partials_path + '/' + path + '.' + partials_ext
+    def get_partial(name):
+        try:
+            return partials_dict[name]
+        except KeyError:
+            path = partials_path + '/' + name + '.' + partials_ext
+            return open(path, 'r')
 
     tokens = tokenize(template)
 
@@ -204,7 +213,7 @@ def render(template, data, partials_path='.', partials_ext='mustache'):
 
         elif tag == 'partial':
             partial = get_partial(key)
-            output += render(open(partial, 'r'), scopes)
+            output += render(partial, scopes)
 
         else:
             print('>>', tag)
