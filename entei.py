@@ -41,15 +41,6 @@ def tokenize(template):
 
         return data
 
-    def peek(ahead=0, amount=1):
-        current = template.tell()
-        template.seek(current + ahead)
-        data = template.read(amount)
-        template.seek(current)
-        if len(data) != amount:
-            raise EOFError()
-        return data
-
     def grab_literal(until=None):
         until = until or l_del
         literal = get()
@@ -87,16 +78,18 @@ def tokenize(template):
         if template.closed:
             break
 
-        tag_type = tag_types.get(peek(0, 1), 'variable')
+        tag_key = get(1)
+        tag_type = tag_types.get(tag_key, 'variable')
         if tag_type != 'variable':
-            template.seek(template.tell() + 1)
+            tag_key = ''
 
-        tag_key = grab_literal(r_del).strip()
+        tag_key += grab_literal(r_del).strip()
 
         if tag_type == 'no escape?':
-            if peek(0, 1) == '}':
+            if get(1) == '}':
                 tag_type = 'no escape'
-                get(1)
+            else:
+                template.seek(template.tell() - 1)
 
         elif tag_type == 'set delimiter?':
             if tag_key[-1] == '=':
