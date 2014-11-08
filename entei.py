@@ -176,8 +176,11 @@ def render(template, data, partials_path='.', partials_ext='mustache',
         try:
             return partials_dict[name]
         except KeyError:
-            path = partials_path + '/' + name + '.' + partials_ext
-            return open(path, 'r')
+            try:
+                path = partials_path + '/' + name + '.' + partials_ext
+                return open(path, 'r')
+            except IOError:
+                return StringIO(None)
 
     tokens = tokenize(template)
 
