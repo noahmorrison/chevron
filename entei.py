@@ -192,10 +192,15 @@ def render(template, data, partials_path='.', partials_ext='mustache',
         scopes = [data]
 
     for tag, key in tokens:
+        try:
+            current_scope = scopes[0]
+        except IndexError:
+            current_scope = None
+
         if tag == 'end':
             scopes = scopes[1:]
 
-        elif not scopes[0] and len(scopes) != 1:
+        elif not current_scope and len(scopes) != 1:
             pass
 
         elif tag == 'literal':
