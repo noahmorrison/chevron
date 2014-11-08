@@ -171,6 +171,7 @@ def render(template, data, partials_path='.', partials_ext='mustache',
                 return scope
             except (TypeError, KeyError):
                 pass
+        return ''
 
     def get_partial(name):
         try:
@@ -201,10 +202,10 @@ def render(template, data, partials_path='.', partials_ext='mustache',
             output += key
 
         elif tag == 'variable':
-            output += html_escape(get_key(key))
+            output += html_escape(str(get_key(key)))
 
         elif tag == 'no escape':
-            output += get_key(key)
+            output += str(get_key(key))
 
         elif tag == 'section':
             scope = get_key(key)
