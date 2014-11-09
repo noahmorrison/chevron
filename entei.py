@@ -37,14 +37,14 @@ def tokenize(template):
     def get(amount=1):
         data = template.read(amount)
         if len(data) != amount:
-            template.close()
+            template.is_finished = True
 
         return data
 
     def grab_literal(until=None):
         until = until or l_del
         literal = get()
-        while not template.closed:
+        while not template.is_finished:
             if literal[-len(until):] == until:
                 return literal[:-len(until)]
 
@@ -68,16 +68,24 @@ def tokenize(template):
     except TypeError:
         pass
 
+    template.is_finished = False
+    is_standalone = True
     open_sections = []
     l_del = '{{'
     r_del = '}}'
-    while not template.closed:
+    while not template.is_finished:
         literal = grab_literal()
 
         if literal != '':
-            yield ('literal', literal)
+            if not literal.isspace():
+                padding = literal.split('\n')[-1]
+                if padding.isspace() or padding == '':
+                    is_standalone = True
+                else:
+                    is_standalone = False
 
-        if template.closed:
+        if template.is_finished:
+            yield ('literal', literal)
             break
 
         tag_key = get(1)
@@ -98,7 +106,6 @@ def tokenize(template):
             if tag_key[-1] == '=':
                 dels = tag_key[:-1].strip().split(' ')
                 l_del, r_del = dels[0], dels[-1]
-                continue
 
         elif tag_type in ['section', 'inverted section']:
             open_sections.append(tag_key)
@@ -108,7 +115,23 @@ def tokenize(template):
             if tag_key != last_section:
                 raise UnclosedSection()
 
-        if tag_type != 'comment':
+        if is_standalone:
+            until = grab_literal('\n')
+            if until.isspace() or until == '':
+                is_standalone = True
+                literal = literal.rstrip(' ')
+
+            else:
+                is_standalone = False
+                if template.is_finished:
+                    template.is_finished = False
+
+                template.seek(template.tell() - len(until))
+
+        if literal != '':
+            yield ('literal', literal)
+
+        if tag_type not in ['comment', 'set delimiter?']:
             yield (tag_type, tag_key)
 
     if open_sections:
