@@ -11,6 +11,7 @@ STACHE = render
 
 
 def _test_case_from_path(json_path):
+    json_path = '%s.json' % json_path
 
     class MustacheTestCase(unittest.TestCase):
         """A simple yaml based test case"""
@@ -32,8 +33,8 @@ def _test_case_from_path(json_path):
             yaml = json.load(f)
 
         # Generates a unit test for each test object
-        for test in yaml['tests']:
-            vars()['test_'+test['name']] = _test_from_object(test)
+        for i, test in enumerate(yaml['tests']):
+            vars()['test_%s' % i] = _test_from_object(test)
 
     # Return the built class
     return MustacheTestCase
@@ -42,6 +43,7 @@ def _test_case_from_path(json_path):
 for spec in SPECS:
     # Ignore optional tests
     if spec[0] is not '~':
+        spec = spec.split('.')[0]
         globals()[spec] = _test_case_from_path(os.path.join(SPECS_PATH, spec))
 
 # Run unit tests from command line
