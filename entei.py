@@ -115,7 +115,7 @@ def tokenize(template):
             if tag_key != last_section:
                 raise UnclosedSection()
 
-        if is_standalone:
+        if is_standalone and tag_type not in ['variable', 'no escape']:
             until = grab_literal('\n')
             if until.isspace() or until == '':
                 is_standalone = True
