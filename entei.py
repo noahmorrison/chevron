@@ -172,7 +172,7 @@ def render(template, data, partials_path='.', partials_ext='mustache',
 
     def html_escape(string):
         html_codes = {
-            '"': '$quot;',
+            '"': '&quot;',
             '&': '&amp;',
             '<': '&lt;',
             '>': '&gt;',
