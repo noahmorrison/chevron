@@ -126,7 +126,7 @@ def tokenize(template):
                 if template.is_finished:
                     template.is_finished = False
 
-                template.seek(template.tell() - len(until))
+                template.seek(template.tell() - (len(until) + 1))
 
         if literal != '':
             yield ('literal', literal)
