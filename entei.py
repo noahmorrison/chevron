@@ -126,7 +126,10 @@ def tokenize(template):
                 if template.is_finished:
                     template.is_finished = False
 
-                template.seek(template.tell() - (len(until) + 1))
+                if tag_type == 'set delimiter?':
+                    template.seek(template.tell() - len(until))
+                else:
+                    template.seek(template.tell() - (len(until) + 1))
 
         if literal != '':
             yield ('literal', literal)
