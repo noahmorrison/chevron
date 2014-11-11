@@ -232,7 +232,11 @@ def render(template, data, partials_path='.', partials_ext='mustache',
             scopes = scopes[1:]
 
         elif not current_scope and len(scopes) != 1:
-            pass
+            if tag == 'section':
+                scopes.insert(0, scope)
+
+            elif tag == 'inverted section':
+                scopes.insert(0, not scope)
 
         elif tag == 'literal':
             output += key
