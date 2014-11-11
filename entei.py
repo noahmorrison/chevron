@@ -211,7 +211,9 @@ def render(template, data, partials_path='.', partials_ext='mustache',
     else:
         tokens = tokenize(template)
 
+
     output = ''
+
     if type(data) is list:
         scopes = data
     else:
@@ -262,7 +264,8 @@ def render(template, data, partials_path='.', partials_ext='mustache',
 
         elif tag == 'partial':
             partial = get_partial(key)
-            output += render(partial, scopes)
+            output += render(partial, scopes, partials_path,
+                             partials_ext, partials_dict)
 
         else:
             print('>>', tag)
