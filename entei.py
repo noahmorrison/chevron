@@ -77,7 +77,7 @@ def tokenize(template):
         literal = grab_literal()
 
         if literal != '':
-            if not literal.isspace():
+            if literal.find('\n') != -1 or is_standalone:
                 padding = literal.split('\n')[-1]
                 if padding.isspace() or padding == '':
                     is_standalone = True
