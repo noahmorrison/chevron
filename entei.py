@@ -187,6 +187,9 @@ def render(template, data, partials_path='.', partials_ext='mustache',
             return ''
 
     def get_key(key):
+        if key == '.':
+            return scopes[0]
+
         for scope in scopes:
             try:
                 for key in key.split('.'):
