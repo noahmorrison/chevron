@@ -214,7 +214,6 @@ def render(template, data, partials_path='.', partials_ext='mustache',
     else:
         tokens = tokenize(template)
 
-
     output = ''
 
     if type(data) is list:
