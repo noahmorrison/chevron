@@ -206,7 +206,10 @@ def render(template, data, partials_path='.', partials_ext='mustache',
             except IOError:
                 return StringIO(None)
 
-    tokens = tokenize(template)
+    if type(template) is list:
+        tokens = template
+    else:
+        tokens = tokenize(template)
 
     output = ''
     if type(data) is list:
@@ -237,7 +240,21 @@ def render(template, data, partials_path='.', partials_ext='mustache',
 
         elif tag == 'section':
             scope = get_key(key)
-            scopes.insert(0, scope)
+
+            if type(scope) is list:
+                tags = []
+                for tag in tokens:
+                    if tag == ('end', key):
+                        break
+                    tags.append(tag)
+
+                for thing in scope:
+                    new_scope = [thing] + scopes
+                    output += render(tags, new_scope, partials_path,
+                                     partials_ext, partials_dict)
+
+            else:
+                scopes.insert(0, scope)
 
         elif tag == 'inverted section':
             scope = get_key(key)
