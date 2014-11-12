@@ -76,13 +76,12 @@ def tokenize(template):
     while not template.is_finished:
         literal = grab_literal()
 
-        if literal != '':
-            if literal.find('\n') != -1 or is_standalone:
-                padding = literal.split('\n')[-1]
-                if padding.isspace() or padding == '':
-                    is_standalone = True
-                else:
-                    is_standalone = False
+        if literal.find('\n') != -1 or is_standalone:
+            padding = literal.split('\n')[-1]
+            if padding.isspace() or padding == '':
+                is_standalone = True
+            else:
+                is_standalone = False
 
         if template.is_finished:
             yield ('literal', literal)
