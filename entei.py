@@ -142,7 +142,7 @@ def tokenize(template):
 
 
 def render(template, data, partials_path='.', partials_ext='mustache',
-           partials_dict={}):
+           partials_dict={}, padding=0):
     """Render a mustache template.
 
     Renders a mustache template with a data scope and partial capability.
@@ -241,7 +241,7 @@ def render(template, data, partials_path='.', partials_ext='mustache',
                 scopes.insert(0, not scope)
 
         elif tag == 'literal':
-            output += key
+            output += key.replace('\n', '\n' + (' ' * padding))
 
         elif tag == 'variable':
             output += html_escape(str(get_key(key)))
@@ -273,8 +273,19 @@ def render(template, data, partials_path='.', partials_ext='mustache',
 
         elif tag == 'partial':
             partial = get_partial(key)
-            output += render(partial, scopes, partials_path,
-                             partials_ext, partials_dict)
+
+            left = output.split('\n')[-1]
+            part_padding = padding
+            if left.isspace():
+                part_padding += left.count(' ')
+
+            part_out = render(partial, scopes, partials_path,
+                              partials_ext, partials_dict, part_padding)
+
+            if left.isspace():
+                part_out = part_out.rstrip(' ')
+
+            output += part_out
 
         else:
             print('>>', tag)
