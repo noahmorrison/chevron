@@ -1,12 +1,15 @@
 {
-  "thing": "world",
-  "html_escaped": "<b>no escape!</b>",
-  "html_escaped2": "<i>ok</i>",
-  "html_escaped3": "<i> this is escaped though </i>",
-  "show": true,
-  "delimiter": {
-    "1": "do delimiters work?",
-    "2": "yes they do!"
-  },
-  "excited": "!!!"
+  "test": "test",
+  "html_escaped": "< > & \"",
+  "true": true,
+  "false": false,
+  "list": [
+      {"i": 1, "v": "one"},
+      {"i": 2, "v": "two"},
+      {"i": 3, "v": "three"}
+  ],
+
+  "scope": {
+      "test": "new test"
+  }
 }

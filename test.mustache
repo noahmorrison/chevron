@@ -2,28 +2,120 @@
     mustache comment!
 }}
 
-Hello, {{ thing }}!
+variable test
+===
+{{ test }}
+===
+test
+===
 
+comment test
+===
+{{!
+    mustache comment
+}}
+===
+===
+
+html escape test (triple brackets)
+===
 {{{html_escaped}}}
-{{&html_escaped2}}
-{{html_escaped3}}
+===
+< > & "
+===
 
-{{#show}}
-Show is true!
-{{/show}}
+html escape test (ampersand)
+===
+{{& html_escaped}}
+===
+< > & "
+===
 
-{{^show}}
-Show is false!
-{{/show}}
+html escape test (normal)
+===
+{{ html_escaped }}
+===
+&lt; &gt; &amp; &quot;
+===
 
+section test (truthy)
+===
+{{# true }}
+true
+{{/ true }}
+===
+true
+===
+
+section test (falsy)
+===
+{{# false }}
+ERROR
+{{/ false }}
+===
+===
+
+section test (list)
+===
+{{# list }}
+number: {{i}}
+name: {{v}}
+---
+{{/ list }}
+===
+number: 1
+name: one
+---
+number: 2
+name: two
+---
+number: 3
+name: three
+---
+===
+
+section test (scope)
+===
+{{ test }}
+{{# scope }}
+{{ test }}
+{{/ scope }}
+===
+test
+new test
+===
+
+inverted section test (truthy)
+===
+{{^ true }}
+ERROR
+{{/ true }}
+===
+===
+
+inverted section test (falsy)
+===
+{{^ false }}
+false
+{{/ false }}
+===
+false
+===
+
+partial test
+===
 {{> partial}}
+===
+this is a partial
+===
 
-{{=<< >>=}}
-
-<<delimiter.1>>
-
-<<={{ }}=>>
-
-{{delimiter.2}}
-
-That's all folks!
+delimiter test
+===
+{{=(( ))=}}
+(( test ))
+((={{ }}=))
+{{ test }}
+===
+test
+test
+===
