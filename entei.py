@@ -117,9 +117,12 @@ def tokenize(template):
 
         if is_standalone and tag_type not in ['variable', 'no escape']:
             until = grab_literal('\n')
+
             if until.isspace() or until == '':
                 is_standalone = True
-                literal = literal.rstrip(' ')
+
+                if tag_type != 'partial':
+                    literal = literal.rstrip(' ')
 
             else:
                 is_standalone = False
