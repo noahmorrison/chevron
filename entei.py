@@ -146,7 +146,7 @@ def tokenize(template):
         raise UnclosedSection()
 
 
-def render(template, data, partials_path='.', partials_ext='mustache',
+def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding=0):
     """Render a mustache template.
 
@@ -298,8 +298,10 @@ def render(template, data, partials_path='.', partials_ext='mustache',
     return output
 
 if __name__ == '__main__':
-    data = argv[1]
-    template = argv[2]
+    args = {
+        'template': open(argv[2], 'r'),
+        'data': json.load(open(argv[1], 'r')),
+    }
 
-    output = render(open(template, 'r'), json.load(open(data, 'r')))
+    output = render(**args)
     print(output)
