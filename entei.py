@@ -133,6 +133,9 @@ def tokenize(template):
                 else:
                     template.seek(template.tell() - (len(until) + 1))
 
+        elif tag_type in ['variable', 'no escape']:
+            is_standalone = False
+
         if literal != '':
             yield ('literal', literal)
 
