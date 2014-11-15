@@ -45,7 +45,7 @@ def tokenize(template):
         until = until or l_del
         literal = get()
         while not template.is_finished:
-            if literal[-len(until):] == until:
+            if literal.endswith(until):
                 return literal[:-len(until)]
 
             literal += get()
