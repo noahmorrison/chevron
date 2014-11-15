@@ -32,16 +32,23 @@ def tokenize(template):
     """
 
     class UnclosedSection(Exception):
+        """Raised when you have unbalanced section tags"""
         pass
 
     def get(amount=1):
+        """Reads amount of data from the template"""
+
         data = template.read(amount)
+
+        # set the finish flag if there is not enough data left
         if len(data) != amount:
             template.is_finished = True
 
         return data
 
     def grab_literal(until=None):
+        """Grabs data from template until it hits the until"""
+
         until = until or l_del
         literal = get()
         while not template.is_finished:
@@ -76,73 +83,132 @@ def tokenize(template):
     while not template.is_finished:
         literal = grab_literal()
 
+        # If the template is completed
         if template.is_finished:
+            # Then yield the literal and leave
             yield ('literal', literal)
             break
 
+        # Checking if the next tag could be a standalone
+        # If there is a newline, or the previous tag was a standalone
         if literal.find('\n') != -1 or is_standalone:
             padding = literal.split('\n')[-1]
+
+            # If all the characters since the last newline are spaces
             if padding.isspace() or padding == '':
+                # Then the next tag could be a standalone
                 is_standalone = True
             else:
+                # Otherwise it can't be
                 is_standalone = False
 
+        # Start work on the tag
+
+        # Get the type character of the tag
         tag_key = get(1)
+
+        # Find the type meaning of the first character
         tag_type = tag_types.get(tag_key, 'variable')
+
+        # If the type is not a variable
         if tag_type != 'variable':
+            # Then that first character is not needed
             tag_key = ''
 
+        # Grab and strip the whitespace off the key
         tag_key += grab_literal(r_del)
         tag_key = tag_key.strip()
 
+        # If we might be a no html escape tag
         if tag_type == 'no escape?':
+            # TODO: this is buggy
+
+            # If we have a third curly brace
             if get(1) == '}':
+                # Then we are a no html escape tag
                 tag_type = 'no escape'
             else:
+                # Otherwise we need to give that character back
                 template.seek(template.tell() - 1)
 
+        # If we might be a set delimiter tag
         elif tag_type == 'set delimiter?':
+            # If our key ends with an equal sign
             if tag_key.endswith('='):
+                # Then get and set the delimiters
                 dels = tag_key[:-1].strip().split(' ')
                 l_del, r_del = dels[0], dels[-1]
 
+        # If we are a section tag
         elif tag_type in ['section', 'inverted section']:
+            # Then open a new section
             open_sections.append(tag_key)
 
+        # If we are an end tag
         elif tag_type == 'end':
+            # Then check to see if the last opened section
+            # is the same as us
             last_section = open_sections.pop()
             if tag_key != last_section:
+                # Otherwise we need to complain
                 raise UnclosedSection()
 
+        # If we might be a standalone and we aren't a tag that can't
+        # be a standalone
         if is_standalone and tag_type not in ['variable', 'no escape']:
             until = grab_literal('\n')
 
+            # If the stuff to the right of us are spaces
             if until.isspace() or until == '':
+                # Then we're a standalone
                 is_standalone = True
 
+                # And if we aren't a partial
                 if tag_type != 'partial':
+                    # Then we need to remove the spaces from the left
                     literal = literal.rstrip(' ')
 
             else:
+                # TODO: this is messy
+
+                # Otherwise we aren't a standalone
                 is_standalone = False
+
+                # Now we need to backtrack
+
+                # If the template is finished
                 if template.is_finished:
+                    # Tell it that it has more work
                     template.is_finished = False
 
+                # If we're a set delimiter tag
                 if tag_type == 'set delimiter?':
+                    # Then step back the length of the stuff we grabbed
                     template.seek(template.tell() - len(until))
                 else:
+                    # Otherwise step back the length plus one
                     template.seek(template.tell() - (len(until) + 1))
 
+                # I don't know why there's a difference...
+
+        # If we're a tag can't be a standalone
         elif tag_type in ['variable', 'no escape']:
+            # Then we aren't a standalone
             is_standalone = False
 
+        # Start yielding
+
+        # Ignore literals that are empty
         if literal != '':
             yield ('literal', literal)
 
+        # Ignore comments and set delimiters
         if tag_type not in ['comment', 'set delimiter?']:
             yield (tag_type, tag_key)
 
+    # If there are any open sections when we're done
     if open_sections:
+        # Then we need to complain
         raise UnclosedSection()
 
 
@@ -173,12 +239,16 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                      before the filesystem is. {'include': 'foo'} is the same
                      as a file called include.mustache
                      (defaults to {})
+    padding       -- This is for padding partials, and shouldn't be used
+                     (but can be if you really want to)
 
     Returns:
     A string containing the rendered template.
     """
 
     def html_escape(string):
+        """HTML escape all of these " & < >"""
+
         html_codes = {
             '"': '&quot;',
             '&': '&amp;',
@@ -195,104 +265,161 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             return ''
 
     def get_key(key):
+        """Get a key from the current scope"""
+
+        # If the key is a dot
         if key == '.':
+            # Then just return the current scope
             return scopes[0]
 
+        # Loop through the scopes
         for scope in scopes:
             try:
+                # For every dot seperated key
                 for key in key.split('.'):
+                    # Move into the scope
                     scope = scope[key]
+                # Return the last scope we got
                 return scope
             except (TypeError, KeyError):
+                # We couldn't find the key in the current scope
+                # We'll try again on the next pass
                 pass
+
+        # We couldn't find the key in any of the scopes
         return ''
 
     def get_partial(name):
+        """Load a partial"""
         try:
+            # Maybe the partial is in the dictionary
             return partials_dict[name]
         except KeyError:
+            # Nope...
             try:
+                # Maybe it's in the file system
                 path = partials_path + '/' + name + '.' + partials_ext
                 return open(path, 'r')
             except IOError:
+                # Alright I give up on you
                 return StringIO(None)
 
+    # If the template is a list
     if type(template) is list:
+        # Then we don't need to tokenize it
         tokens = template
     else:
+        # Otherwise make a generator
         tokens = tokenize(template)
 
     output = ''
 
+    # If the data is a list
     if type(data) is list:
+        # Then it's probably a list of scopes
         scopes = data
     else:
+        # Otherwise it's a single scope
         scopes = [data]
 
+    # Run through the tokens
     for tag, key in tokens:
+        # Set the current scope
         try:
             current_scope = scopes[0]
         except IndexError:
             current_scope = None
 
+        # If we're an end tag
         if tag == 'end':
+            # Pop out of the latest scope
             scopes = scopes[1:]
 
+        # If the current scope is falsy and not the only scope
         elif not current_scope and len(scopes) != 1:
+            # If we're a section tag
             if tag == 'section':
+                # Set it as the most recent scope
                 scopes.insert(0, scope)
 
+            # If we're an inverted section tag
             elif tag == 'inverted section':
+                # Set the flipped scope as the most recent scope
                 scopes.insert(0, not scope)
 
+        # If we're a literal tag
         elif tag == 'literal':
+            # Add padding to the key and add it to the output
             output += key.replace('\n', '\n' + (' ' * padding))
 
+        # If we're a variable tag
         elif tag == 'variable':
+            # Add the html escaped key to the output
             output += html_escape(str(get_key(key)))
 
+        # If we're a no html escape tag
         elif tag == 'no escape':
+            # Just lookup the key and add it
             output += str(get_key(key))
 
+        # If we're a section tag
         elif tag == 'section':
+            # Get the sections scope
             scope = get_key(key)
 
+            # If the scope is a list
             if type(scope) is list:
+                # Then we need to do some looping
+
+                # Gather up all the tags inside the section
                 tags = []
                 for tag in tokens:
                     if tag == ('end', key):
                         break
                     tags.append(tag)
 
+                # For every item in the scope
                 for thing in scope:
+                    # Append it as the most recent scope and render
                     new_scope = [thing] + scopes
                     output += render(tags, new_scope, partials_path,
                                      partials_ext, partials_dict)
 
             else:
+                # Otherwise we're just a scope section
                 scopes.insert(0, scope)
 
+        # If we're an inverted section
         elif tag == 'inverted section':
+            # Add the flipped scope to the scopes
             scope = get_key(key)
             scopes.insert(0, not scope)
 
+        # If we're a partial
         elif tag == 'partial':
+            # Load the partial
             partial = get_partial(key)
 
+            # Find how much to pad the partial
             left = output.split('\n')[-1]
             part_padding = padding
             if left.isspace():
                 part_padding += left.count(' ')
 
+            # Render the partial
             part_out = render(partial, scopes, partials_path,
                               partials_ext, partials_dict, part_padding)
 
+            # If the partial was indented
             if left.isspace():
+                # then remove the spaces from the end
                 part_out = part_out.rstrip(' ')
 
+            # Add the partials output to the ouput
             output += part_out
 
         else:
+            # This should never get hit
             print('UNKNOWN TAG:', tag)
 
     return output
