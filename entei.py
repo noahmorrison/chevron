@@ -293,7 +293,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             output += part_out
 
         else:
-            print('>>', tag)
+            print('UNKNOWN TAG:', tag)
 
     return output
 
