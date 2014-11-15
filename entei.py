@@ -102,7 +102,7 @@ def tokenize(template):
                 template.seek(template.tell() - 1)
 
         elif tag_type == 'set delimiter?':
-            if tag_key[-1] == '=':
+            if tag_key.endswith('='):
                 dels = tag_key[:-1].strip().split(' ')
                 l_del, r_del = dels[0], dels[-1]
 
