@@ -125,7 +125,10 @@ def tokenize(template):
         # If we might be a standalone and we aren't a tag that can't
         # be a standalone
         if is_standalone and tag_type not in ['variable', 'no escape']:
-            until, template = template.split('\n', 1)
+            try:
+                until, template = template.split('\n', 1)
+            except ValueError:
+                until, template = (template, '')
 
             # If the stuff to the right of us are spaces
             if until.isspace() or until == '':
