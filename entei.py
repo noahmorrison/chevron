@@ -127,8 +127,10 @@ def tokenize(template):
         if is_standalone and tag_type not in ['variable', 'no escape']:
             try:
                 until, template = template.split('\n', 1)
+                newline = True
             except ValueError:
                 until, template = (template, '')
+                newline = False
 
             # If the stuff to the right of us are spaces
             if until.isspace() or until == '':
@@ -143,9 +145,12 @@ def tokenize(template):
             else:
                 # TODO: Understand this code.
                 if tag_type == 'set delimiter?':
-                    template = until
+                    template = until + template
                 else:
-                    template = until + '\n' + template
+                    if newline:
+                        template = until + '\n' + template
+                    else:
+                        template = until + template
 
         # If we're a tag can't be a standalone
         elif tag_type in ['variable', 'no escape']:
