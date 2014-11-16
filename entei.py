@@ -51,16 +51,15 @@ def tokenize(template):
     except AttributeError:
         pass
 
-    template.is_finished = False
     is_standalone = True
     open_sections = []
     l_del = '{{'
     r_del = '}}'
-    while not template.is_finished:
+    while template:
         literal, template = template.split(l_del, 1)
 
         # If the template is completed
-        if template.is_finished:
+        if not template:
             # Then yield the literal and leave
             yield ('literal', literal)
             break
@@ -143,13 +142,6 @@ def tokenize(template):
 
                 # Otherwise we aren't a standalone
                 is_standalone = False
-
-                # Now we need to backtrack
-
-                # If the template is finished
-                if template.is_finished:
-                    # Tell it that it has more work
-                    template.is_finished = False
 
                 # If we're a set delimiter tag
                 if tag_type == 'set delimiter?':
