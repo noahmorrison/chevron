@@ -94,12 +94,10 @@ def tokenize(template):
 
         # If we might be a no html escape tag
         if tag_type == 'no escape?':
-            # TODO: this is buggy
-
             # If we have a third curly brace
-            if template[0] == '}':
+            if template[0] == '}' and l_del == '{{' and r_del == '}}':
                 # Then we are a no html escape tag
-                template[1:]
+                template = template[1:]
                 tag_type = 'no escape'
 
         # If we might be a set delimiter tag
