@@ -207,16 +207,16 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
         html_codes = {
             '"': '&quot;',
-            '&': '&amp;',
             '<': '&lt;',
             '>': '&gt;',
         }
 
-        def escape_char(char):
-            return html_codes.get(char, char)
-
         try:
-            return ''.join(map(escape_char, string))
+            # & must be handled first
+            string = string.replace('&', '&amp;')
+            for char in html_codes:
+                string = string.replace(char, html_codes[char])
+            return string
         except TypeError:
             return ''
 
