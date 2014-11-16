@@ -35,17 +35,6 @@ def tokenize(template):
         """Raised when you have unbalanced section tags"""
         pass
 
-    def get(amount=1):
-        """Reads amount of data from the template"""
-
-        data = template.read(amount)
-
-        # set the finish flag if there is not enough data left
-        if len(data) != amount:
-            template.is_finished = True
-
-        return data
-
     tag_types = {
         '!': 'comment',
         '#': 'section',
@@ -107,12 +96,10 @@ def tokenize(template):
             # TODO: this is buggy
 
             # If we have a third curly brace
-            if get(1) == '}':
+            if template[0] == '}':
                 # Then we are a no html escape tag
+                template[1:]
                 tag_type = 'no escape'
-            else:
-                # Otherwise we need to give that character back
-                template.seek(template.tell() - 1)
 
         # If we might be a set delimiter tag
         elif tag_type == 'set delimiter?':
