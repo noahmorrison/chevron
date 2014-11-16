@@ -5,6 +5,11 @@ import json
 from sys import argv
 
 
+class UnclosedSection(Exception):
+    """Raised when you have unbalanced section tags"""
+    pass
+
+
 def tokenize(template):
     """Tokenize a mustache template
 
@@ -29,10 +34,6 @@ def tokenize(template):
     And tag_key is either the key or in the case of a literal tag,
     the literal itself.
     """
-
-    class UnclosedSection(Exception):
-        """Raised when you have unbalanced section tags"""
-        pass
 
     tag_types = {
         '!': 'comment',
