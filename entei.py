@@ -56,7 +56,10 @@ def tokenize(template):
     l_del = '{{'
     r_del = '}}'
     while template:
-        literal, template = template.split(l_del, 1)
+        try:
+            literal, template = template.split(l_del, 1)
+        except ValueError:
+            literal, template = (template, '')
 
         # If the template is completed
         if not template:
