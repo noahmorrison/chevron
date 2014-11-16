@@ -138,20 +138,7 @@ def tokenize(template):
                     literal = literal.rstrip(' ')
 
             else:
-                # TODO: this is messy
-
-                # Otherwise we aren't a standalone
-                is_standalone = False
-
-                # If we're a set delimiter tag
-                if tag_type == 'set delimiter?':
-                    # Then step back the length of the stuff we grabbed
-                    template.seek(template.tell() - len(until))
-                else:
-                    # Otherwise step back the length plus one
-                    template.seek(template.tell() - (len(until) + 1))
-
-                # I don't know why there's a difference...
+                template = until + '\n' + template
 
         # If we're a tag can't be a standalone
         elif tag_type in ['variable', 'no escape']:
