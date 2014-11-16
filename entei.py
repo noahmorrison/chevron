@@ -140,7 +140,11 @@ def tokenize(template):
                     literal = literal.rstrip(' ')
 
             else:
-                template = until + '\n' + template
+                # TODO: Understand this code.
+                if tag_type == 'set delimiter?':
+                    template = until
+                else:
+                    template = until + '\n' + template
 
         # If we're a tag can't be a standalone
         elif tag_type in ['variable', 'no escape']:
