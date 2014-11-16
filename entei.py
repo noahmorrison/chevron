@@ -123,43 +123,25 @@ def tokenize(template):
                 # Otherwise we need to complain
                 raise UnclosedSection()
 
-        # If we might be a standalone and we aren't a tag that can't
-        # be a standalone
+        # Check right side if we might be a standalone
         if is_standalone and tag_type not in ['variable', 'no escape']:
-            try:
-                until, template = template.split('\n', 1)
-                newline = True
-            except ValueError:
-                until, template = (template, '')
-                newline = False
+            on_newline = template.split('\n', 1)
 
-            # If the stuff to the right of us are spaces
-            if until.isspace() or until == '':
-                # Then we're a standalone
-                is_standalone = True
-
-                # And if we aren't a partial
+            # If the stuff to the right of us are spaces we're a standalone
+            if on_newline[0].isspace() or not on_newline[0]:
+                # Remove the stuff before the newline
+                template = on_newline[-1]
                 if tag_type != 'partial':
                     # Then we need to remove the spaces from the left
                     literal = literal.rstrip(' ')
-
             else:
-                # TODO: Understand this code.
-                if tag_type == 'set delimiter?':
-                    template = until + template
-                else:
-                    if newline:
-                        template = until + '\n' + template
-                    else:
-                        template = until + template
+                is_standalone = False
 
         # If we're a tag can't be a standalone
-        elif tag_type in ['variable', 'no escape']:
-            # Then we aren't a standalone
+        else:
             is_standalone = False
 
         # Start yielding
-
         # Ignore literals that are empty
         if literal != '':
             yield ('literal', literal)
