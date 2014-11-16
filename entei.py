@@ -3,7 +3,11 @@
 import json
 
 from sys import argv
-from io import StringIO
+
+
+class UnclosedSection(Exception):
+    """Raised when you have unbalanced section tags"""
+    pass
 
 
 def tokenize(template):
@@ -31,34 +35,6 @@ def tokenize(template):
     the literal itself.
     """
 
-    class UnclosedSection(Exception):
-        """Raised when you have unbalanced section tags"""
-        pass
-
-    def get(amount=1):
-        """Reads amount of data from the template"""
-
-        data = template.read(amount)
-
-        # set the finish flag if there is not enough data left
-        if len(data) != amount:
-            template.is_finished = True
-
-        return data
-
-    def grab_literal(until=None):
-        """Grabs data from template until it hits the until"""
-
-        until = until or l_del
-        literal = get()
-        while not template.is_finished:
-            if literal.endswith(until):
-                return literal[:-len(until)]
-
-            literal += get()
-
-        return literal
-
     tag_types = {
         '!': 'comment',
         '#': 'section',
@@ -71,20 +47,22 @@ def tokenize(template):
     }
 
     try:
-        template = StringIO(template)
-    except TypeError:
+        template = template.read()
+    except AttributeError:
         pass
 
-    template.is_finished = False
     is_standalone = True
     open_sections = []
     l_del = '{{'
     r_del = '}}'
-    while not template.is_finished:
-        literal = grab_literal()
+    while template:
+        try:
+            literal, template = template.split(l_del, 1)
+        except ValueError:
+            literal, template = (template, '')
 
         # If the template is completed
-        if template.is_finished:
+        if not template:
             # Then yield the literal and leave
             yield ('literal', literal)
             break
@@ -103,33 +81,25 @@ def tokenize(template):
                 is_standalone = False
 
         # Start work on the tag
-
-        # Get the type character of the tag
-        tag_key = get(1)
-
         # Find the type meaning of the first character
-        tag_type = tag_types.get(tag_key, 'variable')
+        tag_type = tag_types.get(template[0], 'variable')
 
         # If the type is not a variable
         if tag_type != 'variable':
             # Then that first character is not needed
-            tag_key = ''
+            template = template[1:]
 
         # Grab and strip the whitespace off the key
-        tag_key += grab_literal(r_del)
+        tag_key, template = template.split(r_del, 1)
         tag_key = tag_key.strip()
 
         # If we might be a no html escape tag
         if tag_type == 'no escape?':
-            # TODO: this is buggy
-
             # If we have a third curly brace
-            if get(1) == '}':
+            if template[0] == '}' and l_del == '{{' and r_del == '}}':
                 # Then we are a no html escape tag
+                template = template[1:]
                 tag_type = 'no escape'
-            else:
-                # Otherwise we need to give that character back
-                template.seek(template.tell() - 1)
 
         # If we might be a set delimiter tag
         elif tag_type == 'set delimiter?':
@@ -156,7 +126,12 @@ def tokenize(template):
         # If we might be a standalone and we aren't a tag that can't
         # be a standalone
         if is_standalone and tag_type not in ['variable', 'no escape']:
-            until = grab_literal('\n')
+            try:
+                until, template = template.split('\n', 1)
+                newline = True
+            except ValueError:
+                until, template = (template, '')
+                newline = False
 
             # If the stuff to the right of us are spaces
             if until.isspace() or until == '':
@@ -169,27 +144,14 @@ def tokenize(template):
                     literal = literal.rstrip(' ')
 
             else:
-                # TODO: this is messy
-
-                # Otherwise we aren't a standalone
-                is_standalone = False
-
-                # Now we need to backtrack
-
-                # If the template is finished
-                if template.is_finished:
-                    # Tell it that it has more work
-                    template.is_finished = False
-
-                # If we're a set delimiter tag
+                # TODO: Understand this code.
                 if tag_type == 'set delimiter?':
-                    # Then step back the length of the stuff we grabbed
-                    template.seek(template.tell() - len(until))
+                    template = until + template
                 else:
-                    # Otherwise step back the length plus one
-                    template.seek(template.tell() - (len(until) + 1))
-
-                # I don't know why there's a difference...
+                    if newline:
+                        template = until + '\n' + template
+                    else:
+                        template = until + template
 
         # If we're a tag can't be a standalone
         elif tag_type in ['variable', 'no escape']:
@@ -251,18 +213,15 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
         html_codes = {
             '"': '&quot;',
-            '&': '&amp;',
             '<': '&lt;',
             '>': '&gt;',
         }
 
-        def escape_char(char):
-            return html_codes.get(char, char)
-
-        try:
-            return ''.join(map(escape_char, string))
-        except TypeError:
-            return ''
+        # & must be handled first
+        string = string.replace('&', '&amp;')
+        for char in html_codes:
+            string = string.replace(char, html_codes[char])
+        return string
 
     def get_key(key):
         """Get a key from the current scope"""
@@ -302,7 +261,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 return open(path, 'r')
             except IOError:
                 # Alright I give up on you
-                return StringIO(None)
+                return ''
 
     # If the template is a list
     if type(template) is list:
@@ -325,10 +284,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     # Run through the tokens
     for tag, key in tokens:
         # Set the current scope
-        try:
-            current_scope = scopes[0]
-        except IndexError:
-            current_scope = None
+        current_scope = scopes[0]
 
         # If we're an end tag
         if tag == 'end':
@@ -417,10 +373,6 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
             # Add the partials output to the ouput
             output += part_out
-
-        else:
-            # This should never get hit
-            print('UNKNOWN TAG:', tag)
 
     return output
 
