@@ -3,11 +3,11 @@ import unittest
 import os
 import json
 
-from entei import render
+import entei
 
 SPECS_PATH = os.path.join('spec', 'specs')
 SPECS = [path for path in os.listdir(SPECS_PATH) if path.endswith('.json')]
-STACHE = render
+STACHE = entei.render
 
 
 def _test_case_from_path(json_path):
@@ -45,6 +45,29 @@ for spec in SPECS:
     if spec[0] is not '~':
         spec = spec.split('.')[0]
         globals()[spec] = _test_case_from_path(os.path.join(SPECS_PATH, spec))
+
+
+class ExpandedCoverage(unittest.TestCase):
+
+    def test_unclosed_sections(self):
+        test1 = {
+            'template': '{{# section }} oops {{/ wrong_section }}'
+        }
+
+        test2 = {
+            'template': '{{# section }} end of file'
+        }
+
+        self.assertRaises(entei.UnclosedSection, entei.render, **test1)
+        self.assertRaises(entei.UnclosedSection, entei.render, **test2)
+
+    def test_main(self):
+        result = entei.main('data.json', 'test.mustache')
+        with open('test.rendered', 'r') as f:
+            expected = f.read()
+
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":

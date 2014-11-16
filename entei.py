@@ -258,7 +258,9 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             try:
                 # Maybe it's in the file system
                 path = partials_path + '/' + name + '.' + partials_ext
-                return open(path, 'r')
+                with open(path, 'r') as partial:
+                    return partial.read()
+
             except IOError:
                 # Alright I give up on you
                 return ''
@@ -376,11 +378,18 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
     return output
 
-if __name__ == '__main__':
-    args = {
-        'template': open(argv[2], 'r'),
-        'data': json.load(open(argv[1], 'r')),
-    }
+def main(data, template):
+    data = data
+    template = template
 
-    output = render(**args)
-    print(output)
+    with open(template, 'r') as template_file:
+        with open(data, 'r') as data_file:
+            args = {
+                'template': template_file,
+                'data': json.load(data_file)
+            }
+
+            return render(**args)
+
+if __name__ == '__main__':
+   print(main(argv[1], argv[2]))
