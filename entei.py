@@ -46,19 +46,6 @@ def tokenize(template):
 
         return data
 
-    def grab_literal(until=None):
-        """Grabs data from template until it hits the until"""
-
-        until = until or l_del
-        literal = get()
-        while not template.is_finished:
-            if literal.endswith(until):
-                return literal[:-len(until)]
-
-            literal += get()
-
-        return literal
-
     tag_types = {
         '!': 'comment',
         '#': 'section',
@@ -81,7 +68,7 @@ def tokenize(template):
     l_del = '{{'
     r_del = '}}'
     while not template.is_finished:
-        literal = grab_literal()
+        literal, template = template.split(l_del, 1)
 
         # If the template is completed
         if template.is_finished:
@@ -103,20 +90,16 @@ def tokenize(template):
                 is_standalone = False
 
         # Start work on the tag
-
-        # Get the type character of the tag
-        tag_key = get(1)
-
         # Find the type meaning of the first character
-        tag_type = tag_types.get(tag_key, 'variable')
+        tag_type = tag_types.get(template[0], 'variable')
 
         # If the type is not a variable
         if tag_type != 'variable':
             # Then that first character is not needed
-            tag_key = ''
+            template = template[1:]
 
         # Grab and strip the whitespace off the key
-        tag_key += grab_literal(r_del)
+        tag_key, template = template.split(r_del, 1)
         tag_key = tag_key.strip()
 
         # If we might be a no html escape tag
@@ -156,7 +139,7 @@ def tokenize(template):
         # If we might be a standalone and we aren't a tag that can't
         # be a standalone
         if is_standalone and tag_type not in ['variable', 'no escape']:
-            until = grab_literal('\n')
+            until, template = template.split('\n', 1)
 
             # If the stuff to the right of us are spaces
             if until.isspace() or until == '':
@@ -302,7 +285,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 return open(path, 'r')
             except IOError:
                 # Alright I give up on you
-                return StringIO(None)
+                return ''
 
     # If the template is a list
     if type(template) is list:
