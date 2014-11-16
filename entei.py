@@ -2,8 +2,8 @@
 
 import json
 
+import mmap
 from sys import argv
-from io import StringIO
 
 
 def tokenize(template):
@@ -71,8 +71,8 @@ def tokenize(template):
     }
 
     try:
-        template = StringIO(template)
-    except TypeError:
+        mmap.mmap(template.fileno())
+    except AttributeError:
         pass
 
     template.is_finished = False
