@@ -2,7 +2,6 @@
 
 import json
 
-import mmap
 from sys import argv
 
 
@@ -47,7 +46,7 @@ def tokenize(template):
     }
 
     try:
-        mmap.mmap(template.fileno())
+        template = template.read()
     except AttributeError:
         pass
 
