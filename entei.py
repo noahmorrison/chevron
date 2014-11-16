@@ -217,14 +217,11 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             '>': '&gt;',
         }
 
-        try:
-            # & must be handled first
-            string = string.replace('&', '&amp;')
-            for char in html_codes:
-                string = string.replace(char, html_codes[char])
-            return string
-        except TypeError:
-            return ''
+        # & must be handled first
+        string = string.replace('&', '&amp;')
+        for char in html_codes:
+            string = string.replace(char, html_codes[char])
+        return string
 
     def get_key(key):
         """Get a key from the current scope"""
@@ -287,10 +284,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     # Run through the tokens
     for tag, key in tokens:
         # Set the current scope
-        try:
-            current_scope = scopes[0]
-        except IndexError:
-            current_scope = None
+        current_scope = scopes[0]
 
         # If we're an end tag
         if tag == 'end':
@@ -379,10 +373,6 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
             # Add the partials output to the ouput
             output += part_out
-
-        else:
-            # This should never get hit
-            print('UNKNOWN TAG:', tag)
 
     return output
 
