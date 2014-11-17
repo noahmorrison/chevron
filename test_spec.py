@@ -62,8 +62,8 @@ class ExpandedCoverage(unittest.TestCase):
         self.assertRaises(entei.UnclosedSection, entei.render, **test2)
 
     def test_main(self):
-        result = entei.main('data.json', 'test.mustache')
-        with open('test.rendered', 'r') as f:
+        result = entei.main('tests/data.json', 'tests/test.mustache', partials_path='tests')
+        with open('tests/test.rendered', 'r') as f:
             expected = f.read()
 
         self.assertEqual(result, expected)

@@ -360,7 +360,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
     return output
 
-def main(data, template):
+def main(data, template, **kwargs):
     data = data
     template = template
 
@@ -371,6 +371,7 @@ def main(data, template):
                 'data': json.load(data_file)
             }
 
+            args.update(kwargs)
             return render(**args)
 
 if __name__ == '__main__':
