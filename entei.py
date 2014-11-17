@@ -360,6 +360,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
     return output
 
+
 def main(data, template, **kwargs):
     data = data
     template = template
@@ -375,4 +376,4 @@ def main(data, template, **kwargs):
             return render(**args)
 
 if __name__ == '__main__':
-   print(main(argv[1], argv[2]))
+    print(main(argv[1], argv[2]))
