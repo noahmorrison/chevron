@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/noahmorrison/chevron.svg?branch=master)](https://travis-ci.org/noahmorrison/chevron)
+
 A python implementation of the [mustache templating language](http://mustache.github.io).
 
 Commandline usage:
