@@ -44,7 +44,7 @@ def _test_case_from_path(json_path):
 # Create TestCase for each json file
 for spec in SPECS:
     # Ignore optional tests
-    if spec[0] is not '~':
+    if spec[0] != '~':
         spec = spec.split('.')[0]
         globals()[spec] = _test_case_from_path(os.path.join(SPECS_PATH, spec))
 
