@@ -10,7 +10,7 @@ setup(name='chevron',
       author_email='noah@morrison.ph',
       url='https://github.com/noahmorrison/chevron',
       packages=['chevron'],
-      entry_points = {
+      entry_points={
           'console_scripts': ['chevron=chevron:cli_main']
       }
-     )
+      )
