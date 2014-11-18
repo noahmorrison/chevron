@@ -393,5 +393,11 @@ def main(data, template, **kwargs):
             args.update(kwargs)
             return render(**args)
 
+def cli_main():
+    try:
+        print(main(argv[1], argv[2]))
+    except IndexError:
+        print('usage: chevron [Json file] [Mustache file]')
+
 if __name__ == '__main__':
-    print(main(argv[1], argv[2]))
+    cli_main()
