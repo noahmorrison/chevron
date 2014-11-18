@@ -265,7 +265,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
     output = unicode('', 'utf-8')
 
-    if scopes == None:
+    if scopes is None:
         scopes = [data]
 
     # Run through the tokens
