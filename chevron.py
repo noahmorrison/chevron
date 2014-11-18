@@ -2,14 +2,16 @@
 
 import json
 
-from sys import argv, version
+from sys import argv
 
-python3 = False
-if version > '3':
-    python3 = True
-
+try:
+    unicode
+    python3 = False
+except:
     def unicode(x, y):
         return x
+    python3 = True
+
 
 class UnclosedSection(Exception):
     """Raised when you have unbalanced section tags"""
