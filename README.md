@@ -40,7 +40,6 @@ entei.render(**args)
 TODO
 ---
 
-* add comments
-* micro optimizations
-* add unicode support
-* fix python 2 bug (you can't set attributes on file objects)
+* get popular
+* have people complain
+* fix those complaints
