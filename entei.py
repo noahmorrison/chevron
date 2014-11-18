@@ -163,7 +163,7 @@ def tokenize(template):
 
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
-           partials_dict={}, padding=0):
+           partials_dict={}, padding=0, scopes=None):
     """Render a mustache template.
 
     Renders a mustache template with a data scope and partial capability.
@@ -263,12 +263,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
     output = unicode('', 'utf-8')
 
-    # If the data is a list
-    if type(data) is list:
-        # Then it's probably a list of scopes
-        scopes = data
-    else:
-        # Otherwise it's a single scope
+    if scopes == None:
         scopes = [data]
 
     # Run through the tokens
@@ -333,8 +328,10 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 for thing in scope:
                     # Append it as the most recent scope and render
                     new_scope = [thing] + scopes
-                    output += render(tags, new_scope, partials_path,
-                                     partials_ext, partials_dict)
+                    output += render(template=tags, scopes=new_scope,
+                                     partials_path=partials_path,
+                                     partials_ext=partials_ext,
+                                     partials_dict=partials_dict)
 
             else:
                 # Otherwise we're just a scope section
@@ -358,8 +355,10 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 part_padding += left.count(' ')
 
             # Render the partial
-            part_out = render(partial, scopes, partials_path,
-                              partials_ext, partials_dict, part_padding)
+            part_out = render(template=partial, partials_path=partials_path,
+                              partials_ext=partials_ext,
+                              partials_dict=partials_dict,
+                              padding=part_padding, scopes=scopes)
 
             # If the partial was indented
             if left.isspace():
