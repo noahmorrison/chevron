@@ -95,6 +95,17 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_listed_data(self):
+        args = {
+            'template': '{{# . }}({{ . }}){{/ . }}',
+            'data': [1, 2, 3, 4, 5]
+        }
+
+        result = entei.render(**args)
+        expected = '(1)(2)(3)(4)(5)'
+
+        self.assertEqual(result, expected)
+
     def test_main(self):
         result = entei.main('tests/data.json', 'tests/test.mustache',
                             partials_path='tests')
