@@ -2,27 +2,27 @@ A python implementation of the [mustache templating language](http://mustache.gi
 
 Commandline usage:
 ```
-    ./entei.py [data file] [template file]
+    ./chevron.py [data file] [template file]
 ```
 
 Python usage with strings
 ```
-import entei
+import chevron
 
-entei.render('Hello, {{ mustache }}!', {'mustache': 'World'})
+chevron.render('Hello, {{ mustache }}!', {'mustache': 'World'})
 ```
 
 Python usage with file
 ```
-import entei
+import chevron
 
 with open('file.mustache', 'r') as f:
-    entei.render(f, {'mustache': 'World'})
+    chevron.render(f, {'mustache': 'World'})
 ```
 
 Python usage with unpacking
 ```
-import entei
+import chevron
 
 args = {
   template: 'Hello, {{ mustache }}!',
@@ -32,7 +32,7 @@ args = {
   }
 }
 
-entei.render(**args)
+chevron.render(**args)
 ```
 
 

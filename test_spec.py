@@ -5,11 +5,11 @@ import unittest
 import os
 import json
 
-import entei
+import chevron
 
 SPECS_PATH = os.path.join('spec', 'specs')
 SPECS = [path for path in os.listdir(SPECS_PATH) if path.endswith('.json')]
-STACHE = entei.render
+STACHE = chevron.render
 
 
 def _test_case_from_path(json_path):
@@ -60,15 +60,15 @@ class ExpandedCoverage(unittest.TestCase):
             'template': '{{# section }} end of file'
         }
 
-        self.assertRaises(entei.UnclosedSection, entei.render, **test1)
-        self.assertRaises(entei.UnclosedSection, entei.render, **test2)
+        self.assertRaises(chevron.UnclosedSection, chevron.render, **test1)
+        self.assertRaises(chevron.UnclosedSection, chevron.render, **test2)
 
     def test_unicode_basic(self):
         args = {
             'template': '(╯°□°）╯︵ ┻━┻'
         }
 
-        result = entei.render(**args)
+        result = chevron.render(**args)
         expected = '(╯°□°）╯︵ ┻━┻'
 
         self.assertEqual(result, expected)
@@ -79,7 +79,7 @@ class ExpandedCoverage(unittest.TestCase):
             'data': {'table_flip': '(╯°□°）╯︵ ┻━┻'}
         }
 
-        result = entei.render(**args)
+        result = chevron.render(**args)
         expected = '(╯°□°）╯︵ ┻━┻'
 
         self.assertEqual(result, expected)
@@ -90,7 +90,7 @@ class ExpandedCoverage(unittest.TestCase):
             'partials_dict': {'table_flip': '(╯°□°）╯︵ ┻━┻'}
         }
 
-        result = entei.render(**args)
+        result = chevron.render(**args)
         expected = '(╯°□°）╯︵ ┻━┻'
 
         self.assertEqual(result, expected)
@@ -101,13 +101,13 @@ class ExpandedCoverage(unittest.TestCase):
             'data': [1, 2, 3, 4, 5]
         }
 
-        result = entei.render(**args)
+        result = chevron.render(**args)
         expected = '(1)(2)(3)(4)(5)'
 
         self.assertEqual(result, expected)
 
     def test_main(self):
-        result = entei.main('tests/data.json', 'tests/test.mustache',
+        result = chevron.main('tests/data.json', 'tests/test.mustache',
                             partials_path='tests')
 
         with open('tests/test.rendered', 'r') as f:
