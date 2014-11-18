@@ -2,7 +2,14 @@
 
 import json
 
-from sys import argv
+from sys import argv, version
+
+python3 = False
+if version > '3':
+    python3 = True
+
+    def unicode(x, y):
+        return x
 
 class UnclosedSection(Exception):
     """Raised when you have unbalanced section tags"""
@@ -360,9 +367,15 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 part_out = part_out.rstrip(' ')
 
             # Add the partials output to the ouput
-            output += part_out.decode('utf-8')
+            if python3:
+                output += part_out
+            else:
+                output += part_out.decode('utf-8')
 
-    return output.encode('utf-8')
+    if python3:
+        return output
+    else:
+        return output.encode('utf-8')
 
 
 def main(data, template, **kwargs):
