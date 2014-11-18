@@ -4,7 +4,7 @@ import json
 
 from sys import argv
 
-try:
+try:  # python 2
     unicode
     python3 = False
 except:
@@ -370,12 +370,12 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             # Add the partials output to the ouput
             if python3:
                 output += part_out
-            else:
+            else:  # python 2
                 output += part_out.decode('utf-8')
 
     if python3:
         return output
-    else:
+    else:  # python 2
         return output.encode('utf-8')
 
 
