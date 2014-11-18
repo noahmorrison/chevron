@@ -103,3 +103,24 @@ test
 test
 test
 ===
+
+unicode test (basic)
+===
+(╯°□°）╯︵ ┻━┻
+===
+(╯°□°）╯︵ ┻━┻
+===
+
+unicode test (variable)
+===
+(╯°□°）╯︵ ┻━┻
+===
+(╯°□°）╯︵ ┻━┻
+===
+
+unicode test (partial)
+===
+(╯°□°）╯︵ ┻━┻
+===
+(╯°□°）╯︵ ┻━┻
+===
