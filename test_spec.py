@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import unittest
 import os
 import json
@@ -60,6 +62,38 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertRaises(entei.UnclosedSection, entei.render, **test1)
         self.assertRaises(entei.UnclosedSection, entei.render, **test2)
+
+    def test_unicode_basic(self):
+        args = {
+            'template': '(╯°□°）╯︵ ┻━┻'
+        }
+
+        result = entei.render(**args)
+        expected = '(╯°□°）╯︵ ┻━┻'
+
+        self.assertEqual(result, expected)
+
+    def test_unicode_variable(self):
+        args = {
+            'template': '{{ table_flip }}',
+            'data': {'table_flip': '(╯°□°）╯︵ ┻━┻'}
+        }
+
+        result = entei.render(**args)
+        expected = '(╯°□°）╯︵ ┻━┻'
+
+        self.assertEqual(result, expected)
+
+    def test_unicode_partial(self):
+        args = {
+            'template': '{{> table_flip }}',
+            'partials_dict': {'table_flip': '(╯°□°）╯︵ ┻━┻'}
+        }
+
+        result = entei.render(**args)
+        expected = '(╯°□°）╯︵ ┻━┻'
+
+        self.assertEqual(result, expected)
 
     def test_main(self):
         result = entei.main('tests/data.json', 'tests/test.mustache',

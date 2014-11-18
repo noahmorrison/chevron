@@ -2,8 +2,14 @@
 
 import json
 
-from sys import argv
+from sys import argv, version
 
+python3 = False
+if version > '3':
+    python3 = True
+
+    def unicode(x, y):
+        return x
 
 class UnclosedSection(Exception):
     """Raised when you have unbalanced section tags"""
@@ -255,7 +261,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # Otherwise make a generator
         tokens = tokenize(template)
 
-    output = ''
+    output = unicode('', 'utf-8')
 
     # If the data is a list
     if type(data) is list:
@@ -290,12 +296,17 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a literal tag
         elif tag == 'literal':
             # Add padding to the key and add it to the output
+            if type(key) != unicode:
+                key = unicode(key, 'utf-8')
             output += key.replace('\n', '\n' + (' ' * padding))
 
         # If we're a variable tag
         elif tag == 'variable':
             # Add the html escaped key to the output
-            output += html_escape(str(get_key(key)))
+            thing = get_key(key)
+            if type(thing) != unicode:
+                thing = unicode(str(thing), 'utf-8')
+            output += html_escape(thing)
 
         # If we're a no html escape tag
         elif tag == 'no escape':
@@ -356,9 +367,15 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 part_out = part_out.rstrip(' ')
 
             # Add the partials output to the ouput
-            output += part_out
+            if python3:
+                output += part_out
+            else:
+                output += part_out.decode('utf-8')
 
-    return output
+    if python3:
+        return output
+    else:
+        return output.encode('utf-8')
 
 
 def main(data, template, **kwargs):
