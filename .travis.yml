@@ -12,5 +12,5 @@ script:
   - pep8 .
   - ./test_spec.py
   - coverage -x ./test_spec.py
-after-success:
+after_success:
   - coveralls
