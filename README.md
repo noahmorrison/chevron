@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/noahmorrison/chevron.svg?branch=master)](https://travis-ci.org/noahmorrison/chevron)
-
+[![Coverage Status](https://img.shields.io/coveralls/noahmorrison/chevron.svg)](https://coveralls.io/r/noahmorrison/chevron?branch=master)
 
 A python implementation of the [mustache templating language](http://mustache.github.io).
 
