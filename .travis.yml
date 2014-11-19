@@ -7,6 +7,10 @@ python:
   - "3.4"
 install:
   - pip install pep8
+  - pip install coveralls
 script:
   - pep8 .
   - ./test_spec.py
+  - coverage -x ./test_spec.py
+after-success:
+  - coveralls
