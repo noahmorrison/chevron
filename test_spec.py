@@ -27,8 +27,8 @@ def _test_case_from_path(json_path):
 
                 self.assertEqual(result, obj['expected'])
 
-            test_case.__doc__ = 'suite: {}    desc: {}'.format(spec,
-                                                               obj['desc'])
+            test_case.__doc__ = 'suite: {0}    desc: {1}'.format(spec,
+                                                                 obj['desc'])
             return test_case
 
         with open(json_path, 'r') as f:
@@ -36,7 +36,7 @@ def _test_case_from_path(json_path):
 
         # Generates a unit test for each test object
         for i, test in enumerate(yaml['tests']):
-            vars()['test_%s' % i] = _test_from_object(test)
+            vars()['test_' + str(i)] = _test_from_object(test)
 
     # Return the built class
     return MustacheTestCase
