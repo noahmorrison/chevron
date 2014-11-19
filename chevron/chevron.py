@@ -398,10 +398,47 @@ def main(template, data=None, **kwargs):
 
 
 def cli_main():
-    try:
-        print(main(argv[1], argv[2]))
-    except IndexError:
-        print('usage: chevron [Json file] [Mustache file]')
+    """Render mustache templates using json files"""
+    import argparse
+    import os
+
+    def is_file(arg):
+        if not os.path.isfile(arg):
+            parser.error('The file {0} does not exist!'.format(arg))
+        else:
+            return arg
+
+    def is_dir(arg):
+        if not os.path.isdir(arg):
+            parser.error('The directory {0} does not exist!'.format(arg))
+        else:
+            return arg
+
+    parser = argparse.ArgumentParser(description=__doc__)
+
+    parser.add_argument('template', help='The mustache file',
+                        type=is_file)
+
+    parser.add_argument('-d', '--data', dest='json_file',
+                        help='The json data file',
+                        type=is_file)
+
+    parser.add_argument('-p', '--path', dest='partials_path',
+                        help='The directory where your partials reside',
+                        type=is_dir)
+
+    parser.add_argument('-e', '--ext', dest='partials_ext',
+                        help='The extension for your mustache\
+                              partials, \'mustache\' by default')
+
+    args = parser.parse_args()
+
+    kwargs = {
+        'partials_path': args.partials_path or '.',
+        'partials_ext': args.partials_ext or 'mustache'
+    }
+
+    print(main(args.template, args.json_file, **kwargs))
 
 if __name__ == '__main__':
     cli_main()
