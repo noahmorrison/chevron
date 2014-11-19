@@ -19,7 +19,7 @@ The pep8 command is run by [travis](https://travis-ci.org/noahmorrison/chevron) 
 
 * chevron is spec compliant
 
-Chevron passes all the unittests provided by the [spec](https://github.com/mustache/spec) (in every version listed above).
+Chevron passes all the unittests provided by the [spec](https://github.com/mustache/spec) (in every version listed below).
 
 If you find a test that chevron does not pass, please [report it.](https://github.com/noahmorrison/chevron/issues/new)
 
