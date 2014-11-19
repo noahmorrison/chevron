@@ -107,7 +107,7 @@ class ExpandedCoverage(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_main(self):
-        result = chevron.main('tests/data.json', 'tests/test.mustache',
+        result = chevron.main('tests/test.mustache', 'tests/data.json',
                               partials_path='tests')
 
         with open('tests/test.rendered', 'r') as f:
