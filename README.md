@@ -8,22 +8,22 @@ Why chevron?
 
 I'm glad you asked!
 
-* chevron is fast!
+### chevron is fast ###
 
 Chevron runs in less than half the time of [pystache](http://github.com/defunkt/pystache) (Which is not even up to date on the spec).
 And in about 70% the time of [Stache](https://github.com/hyperturtle/Stache) (A 'trimmed' version of mustache, also not spec compliant).
 
-* chevron is pep8
+### chevron is pep8 ###
 
 The pep8 command is run by [travis](https://travis-ci.org/noahmorrison/chevron) to ensure consistency.
 
-* chevron is spec compliant
+### chevron is spec compliant ###
 
 Chevron passes all the unittests provided by the [spec](https://github.com/mustache/spec) (in every version listed below).
 
 If you find a test that chevron does not pass, please [report it.](https://github.com/noahmorrison/chevron/issues/new)
 
-* chevron is python 2 and 3 compliant
+### chevron is Python 2 and 3 compatible ###
 
 Python 2.6, 2.7, 3.2, 3.3, and 3.4 are all tested by travis.
 
