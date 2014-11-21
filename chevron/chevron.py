@@ -18,7 +18,7 @@ class UnclosedSection(Exception):
     pass
 
 
-def tokenize(template):
+def tokenize(template, def_ldel='{{', def_rdel='}}'):
     """Tokenize a mustache template
 
     Tokenizes a mustache template in a generator fashion,
@@ -61,8 +61,8 @@ def tokenize(template):
 
     is_standalone = True
     open_sections = []
-    l_del = '{{'
-    r_del = '}}'
+    l_del = def_ldel
+    r_del = def_rdel
     while template:
         try:
             literal, template = template.split(l_del, 1)
@@ -165,7 +165,8 @@ def tokenize(template):
 
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
-           partials_dict={}, padding=0, scopes=None):
+           partials_dict={}, padding=0, def_ldel='{{', def_rdel='}}',
+           scopes=None):
     """Render a mustache template.
 
     Renders a mustache template with a data scope and partial capability.
@@ -261,7 +262,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         tokens = template
     else:
         # Otherwise make a generator
-        tokens = tokenize(template)
+        tokens = tokenize(template, def_ldel, def_rdel)
 
     output = unicode('', 'utf-8')
 
@@ -333,7 +334,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                     output += render(template=tags, scopes=new_scope,
                                      partials_path=partials_path,
                                      partials_ext=partials_ext,
-                                     partials_dict=partials_dict)
+                                     partials_dict=partials_dict,
+                                     def_ldel=def_ldel, def_rdel=def_rdel)
 
             else:
                 # Otherwise we're just a scope section
@@ -360,6 +362,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             part_out = render(template=partial, partials_path=partials_path,
                               partials_ext=partials_ext,
                               partials_dict=partials_dict,
+                              def_ldel=def_ldel, def_rdel=def_rdel,
                               padding=part_padding, scopes=scopes)
 
             # If the partial was indented
@@ -431,11 +434,19 @@ def cli_main():
                         help='The extension for your mustache\
                               partials, \'mustache\' by default')
 
+    parser.add_argument('-l', '--left-delimiter', dest='left_delimiter',
+                        help='The default left delimiter, "{{" by default.')
+
+    parser.add_argument('-r', '--right-delimiter', dest='right_delimiter',
+                        help='The default right delimiter, "}}" by default.')
+
     args = parser.parse_args()
 
     kwargs = {
         'partials_path': args.partials_path or '.',
-        'partials_ext': args.partials_ext or 'mustache'
+        'partials_ext': args.partials_ext or 'mustache',
+        'def_ldel': args.left_delimiter or '{{',
+        'def_rdel': args.right_delimiter or '}}',
     }
 
     print(main(args.template, args.json_file, **kwargs))
