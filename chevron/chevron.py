@@ -382,14 +382,12 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         return output.encode('utf-8')
 
 
-def main(template, data=None, **kwargs):
+def main(template, data={}, **kwargs):
     with open(template, 'r') as template_file:
-        if data is not None:
+        if data is not {}:
             data_file = open(data, 'r')
             data = json.load(data_file)
             data_file.close()
-        else:
-            data = {}
 
         args = {
             'template': template_file,
