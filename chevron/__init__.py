@@ -1,3 +1,4 @@
-from .chevron import main, render, UnclosedSection, cli_main
+from .main import main, cli_main
+from .renderer import render
 
-__all__ = ['main', 'render', 'UnclosedSection', 'cli_main']
+__all__ = ['main', 'render', 'cli_main']

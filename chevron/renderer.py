@@ -1,8 +1,16 @@
 #!/usr/bin/python
 
-import json
 
-from sys import argv
+#
+# Python 2 and 3, module and script compatability
+# If you know a better way please tell me :(
+#
+
+try:
+    from .tokenizer import tokenize
+except (ValueError, SystemError):
+    from tokenizer import tokenize
+
 
 try:  # python 2
     unicode
@@ -11,157 +19,6 @@ except:
     def unicode(x, y):
         return x
     python3 = True
-
-
-class UnclosedSection(Exception):
-    """Raised when you have unbalanced section tags"""
-    pass
-
-
-def tokenize(template, def_ldel='{{', def_rdel='}}'):
-    """Tokenize a mustache template
-
-    Tokenizes a mustache template in a generator fashion,
-    using file-like objects. It also accepts a string containing
-    the template.
-
-    Arguments:
-    template -- a file-like object, or a string of a mustache template
-
-    Returns:
-    A generator of mustache tags in the form of a tuple
-    -- (tag_type, tag_key)
-
-    Where tag_type is one of:
-     * literal
-     * section
-     * inverted section
-     * end
-     * partial
-     * no escape
-    And tag_key is either the key or in the case of a literal tag,
-    the literal itself.
-    """
-
-    tag_types = {
-        '!': 'comment',
-        '#': 'section',
-        '^': 'inverted section',
-        '/': 'end',
-        '>': 'partial',
-        '=': 'set delimiter?',
-        '{': 'no escape?',
-        '&': 'no escape'
-    }
-
-    try:
-        template = template.read()
-    except AttributeError:
-        pass
-
-    is_standalone = True
-    open_sections = []
-    l_del = def_ldel
-    r_del = def_rdel
-    while template:
-        try:
-            literal, template = template.split(l_del, 1)
-        except ValueError:
-            literal, template = (template, '')
-
-        # If the template is completed
-        if not template:
-            # Then yield the literal and leave
-            yield ('literal', literal)
-            break
-
-        # Checking if the next tag could be a standalone
-        # If there is a newline, or the previous tag was a standalone
-        if literal.find('\n') != -1 or is_standalone:
-            padding = literal.split('\n')[-1]
-
-            # If all the characters since the last newline are spaces
-            if padding.isspace() or padding == '':
-                # Then the next tag could be a standalone
-                is_standalone = True
-            else:
-                # Otherwise it can't be
-                is_standalone = False
-
-        # Start work on the tag
-        # Find the type meaning of the first character
-        tag_type = tag_types.get(template[0], 'variable')
-
-        # If the type is not a variable
-        if tag_type != 'variable':
-            # Then that first character is not needed
-            template = template[1:]
-
-        # Grab and strip the whitespace off the key
-        tag_key, template = template.split(r_del, 1)
-        tag_key = tag_key.strip()
-
-        # If we might be a no html escape tag
-        if tag_type == 'no escape?':
-            # If we have a third curly brace
-            if template[0] == '}' and l_del == '{{' and r_del == '}}':
-                # Then we are a no html escape tag
-                template = template[1:]
-                tag_type = 'no escape'
-
-        # If we might be a set delimiter tag
-        elif tag_type == 'set delimiter?':
-            # If our key ends with an equal sign
-            if tag_key.endswith('='):
-                # Then get and set the delimiters
-                dels = tag_key[:-1].strip().split(' ')
-                l_del, r_del = dels[0], dels[-1]
-
-        # If we are a section tag
-        elif tag_type in ['section', 'inverted section']:
-            # Then open a new section
-            open_sections.append(tag_key)
-
-        # If we are an end tag
-        elif tag_type == 'end':
-            # Then check to see if the last opened section
-            # is the same as us
-            last_section = open_sections.pop()
-            if tag_key != last_section:
-                # Otherwise we need to complain
-                raise UnclosedSection()
-
-        # Check right side if we might be a standalone
-        if is_standalone and tag_type not in ['variable', 'no escape']:
-            on_newline = template.split('\n', 1)
-
-            # If the stuff to the right of us are spaces we're a standalone
-            if on_newline[0].isspace() or not on_newline[0]:
-                # Remove the stuff before the newline
-                template = on_newline[-1]
-                if tag_type != 'partial':
-                    # Then we need to remove the spaces from the left
-                    literal = literal.rstrip(' ')
-            else:
-                is_standalone = False
-
-        # If we're a tag can't be a standalone
-        else:
-            is_standalone = False
-
-        # Start yielding
-        # Ignore literals that are empty
-        if literal != '':
-            yield ('literal', literal)
-
-        # Ignore comments and set delimiters
-        if tag_type not in ['comment', 'set delimiter?']:
-            yield (tag_type, tag_key)
-
-    # If there are any open sections when we're done
-    if open_sections:
-        # Then we need to complain
-        raise UnclosedSection()
 
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
@@ -380,70 +237,3 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         return output
     else:  # python 2
         return output.encode('utf-8')
-
-
-def main(template, data={}, **kwargs):
-    with open(template, 'r') as template_file:
-        if data != {}:
-            data_file = open(data, 'r')
-            data = json.load(data_file)
-            data_file.close()
-
-        args = {
-            'template': template_file,
-            'data': data
-        }
-
-        args.update(kwargs)
-        return render(**args)
-
-
-def cli_main():
-    """Render mustache templates using json files"""
-    import argparse
-    import os
-
-    def is_file(arg):
-        if not os.path.isfile(arg):
-            parser.error('The file {0} does not exist!'.format(arg))
-        else:
-            return arg
-
-    def is_dir(arg):
-        if not os.path.isdir(arg):
-            parser.error('The directory {0} does not exist!'.format(arg))
-        else:
-            return arg
-
-    parser = argparse.ArgumentParser(description=__doc__)
-
-    parser.add_argument('template', help='The mustache file',
-                        type=is_file)
-
-    parser.add_argument('-d', '--data', dest='data',
-                        help='The json data file',
-                        type=is_file, default={})
-
-    parser.add_argument('-p', '--path', dest='partials_path',
-                        help='The directory where your partials reside',
-                        type=is_dir, default='.')
-
-    parser.add_argument('-e', '--ext', dest='partials_ext',
-                        help='The extension for your mustache\
-                              partials, \'mustache\' by default',
-                        default='mustache')
-
-    parser.add_argument('-l', '--left-delimiter', dest='def_ldel',
-                        help='The default left delimiter, "{{" by default.',
-                        default='{{')
-
-    parser.add_argument('-r', '--right-delimiter', dest='def_rdel',
-                        help='The default right delimiter, "}}" by default.',
-                        default='}}')
-
-    args = vars(parser.parse_args())
-
-    print(main(**args))
-
-if __name__ == '__main__':
-    cli_main()
