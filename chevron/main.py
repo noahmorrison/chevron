@@ -4,8 +4,17 @@ import json
 
 from sys import argv
 
-from chevron.tokenizer import tokenize
-from chevron.renderer import render
+#
+# Python 2 and 3, module and script compatability
+# If you know a better way please tell me :(
+#
+
+try:
+    from .tokenizer import tokenize
+    from .renderer import render
+except (ValueError, SystemError):
+    from tokenizer import tokenize
+    from renderer import render
 
 
 def main(template, data={}, **kwargs):

@@ -1,6 +1,16 @@
 #!/usr/bin/python
 
-from chevron.tokenizer import tokenize
+
+#
+# Python 2 and 3, module and script compatability
+# If you know a better way please tell me :(
+#
+
+try:
+    from .tokenizer import tokenize
+except (ValueError, SystemError):
+    from tokenizer import tokenize
+
 
 try:  # python 2
     unicode
