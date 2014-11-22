@@ -384,7 +384,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
 def main(template, data={}, **kwargs):
     with open(template, 'r') as template_file:
-        if data is not {}:
+        if data != {}:
             data_file = open(data, 'r')
             data = json.load(data_file)
             data_file.close()
@@ -420,34 +420,30 @@ def cli_main():
     parser.add_argument('template', help='The mustache file',
                         type=is_file)
 
-    parser.add_argument('-d', '--data', dest='json_file',
+    parser.add_argument('-d', '--data', dest='data',
                         help='The json data file',
-                        type=is_file)
+                        type=is_file, default={})
 
     parser.add_argument('-p', '--path', dest='partials_path',
                         help='The directory where your partials reside',
-                        type=is_dir)
+                        type=is_dir, default='.')
 
     parser.add_argument('-e', '--ext', dest='partials_ext',
                         help='The extension for your mustache\
-                              partials, \'mustache\' by default')
+                              partials, \'mustache\' by default',
+                        default='mustache')
 
-    parser.add_argument('-l', '--left-delimiter', dest='left_delimiter',
-                        help='The default left delimiter, "{{" by default.')
+    parser.add_argument('-l', '--left-delimiter', dest='def_ldel',
+                        help='The default left delimiter, "{{" by default.',
+                        default='{{')
 
-    parser.add_argument('-r', '--right-delimiter', dest='right_delimiter',
-                        help='The default right delimiter, "}}" by default.')
+    parser.add_argument('-r', '--right-delimiter', dest='def_rdel',
+                        help='The default right delimiter, "}}" by default.',
+                        default='}}')
 
-    args = parser.parse_args()
+    args = vars(parser.parse_args())
 
-    kwargs = {
-        'partials_path': args.partials_path or '.',
-        'partials_ext': args.partials_ext or 'mustache',
-        'def_ldel': args.left_delimiter or '{{',
-        'def_rdel': args.right_delimiter or '}}',
-    }
-
-    print(main(args.template, args.json_file, **kwargs))
+    print(main(**args))
 
 if __name__ == '__main__':
     cli_main()
