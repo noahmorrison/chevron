@@ -60,8 +60,10 @@ class ExpandedCoverage(unittest.TestCase):
             'template': '{{# section }} end of file'
         }
 
-        self.assertRaises(chevron.UnclosedSection, chevron.render, **test1)
-        self.assertRaises(chevron.UnclosedSection, chevron.render, **test2)
+        self.assertRaises(chevron.tokenizer.UnclosedSection,
+                          chevron.render, **test1)
+        self.assertRaises(chevron.tokenizer.UnclosedSection,
+                          chevron.render, **test2)
 
     def test_unicode_basic(self):
         args = {
