@@ -1,11 +1,6 @@
 #!/usr/bin/python
 
 
-class UnclosedSection(Exception):
-    """Raised when you have unbalanced section tags"""
-    pass
-
-
 def tokenize(template, def_ldel='{{', def_rdel='}}'):
     """Tokenize a mustache template
 
@@ -117,7 +112,8 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
             last_section = open_sections.pop()
             if tag_key != last_section:
                 # Otherwise we need to complain
-                raise UnclosedSection()
+                raise SyntaxError("End tag does not match ."
+                                  "the currently opened section")
 
         # Check right side if we might be a standalone
         if is_standalone and tag_type not in ['variable', 'no escape']:
@@ -149,4 +145,4 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
     # If there are any open sections when we're done
     if open_sections:
         # Then we need to complain
-        raise UnclosedSection()
+        raise SyntaxError("End of file while a section was open")
