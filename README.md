@@ -38,14 +38,14 @@ $ chevron [data file] [template file]
 ```
 
 Python usage with strings
-```
+```python
 import chevron
 
 chevron.render('Hello, {{ mustache }}!', {'mustache': 'World'})
 ```
 
 Python usage with file
-```
+```python
 import chevron
 
 with open('file.mustache', 'r') as f:
@@ -53,7 +53,7 @@ with open('file.mustache', 'r') as f:
 ```
 
 Python usage with unpacking
-```
+```python
 import chevron
 
 args = {
@@ -68,7 +68,7 @@ chevron.render(**args)
 ```
 
 chevron supports partials (via dictionaries)
-```
+```python
 import chevron
 
 args = {
@@ -83,7 +83,7 @@ chevron.render(**args)
 ```
 
 chevron supports partials (via the filesystem)
-```
+```python
 import chevron
 
 args = {
