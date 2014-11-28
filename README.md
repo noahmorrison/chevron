@@ -34,7 +34,25 @@ USAGE
 
 Commandline usage: (if installed via pypi)
 ```
-$ chevron [data file] [template file]
+usage: chevron [-h] [-d DATA] [-p PARTIALS_PATH] [-e PARTIALS_EXT]
+               [-l DEF_LDEL] [-r DEF_RDEL]
+               template
+
+positional arguments:
+  template              The mustache file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DATA, --data DATA  The json data file
+  -p PARTIALS_PATH, --path PARTIALS_PATH
+                        The directory where your partials reside
+  -e PARTIALS_EXT, --ext PARTIALS_EXT
+                        The extension for your mustache partials, 'mustache'
+                        by default
+  -l DEF_LDEL, --left-delimiter DEF_LDEL
+                        The default left delimiter, "{{" by default.
+  -r DEF_RDEL, --right-delimiter DEF_RDEL
+                        The default right delimiter, "}}" by default.
 ```
 
 Python usage with strings
@@ -124,6 +142,9 @@ $ pip install chevron
 
 TODO
 ---
+
+* add postmortem debugging
+* add caching of templates
 
 * get popular
 * have people complain
