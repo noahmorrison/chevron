@@ -66,6 +66,29 @@ def _get_key(key, scopes):
     # We couldn't find the key in any of the scopes
     return ''
 
+
+def _get_partial(name, partials_dict, partials_path, partials_ext):
+    """Load a partial"""
+    try:
+        # Maybe the partial is in the dictionary
+        return partials_dict[name]
+    except KeyError:
+        # Nope...
+        try:
+            # Maybe it's in the file system
+            path = partials_path + '/' + name + '.' + partials_ext
+            with open(path, 'r') as partial:
+                return partial.read()
+
+        except IOError:
+            # Alright I give up on you
+            return ''
+
+
+#
+# The main rendering function
+#
+
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding=0, def_ldel='{{', def_rdel='}}',
            scopes=None):
@@ -100,23 +123,6 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     Returns:
     A string containing the rendered template.
     """
-
-    def get_partial(name):
-        """Load a partial"""
-        try:
-            # Maybe the partial is in the dictionary
-            return partials_dict[name]
-        except KeyError:
-            # Nope...
-            try:
-                # Maybe it's in the file system
-                path = partials_path + '/' + name + '.' + partials_ext
-                with open(path, 'r') as partial:
-                    return partial.read()
-
-            except IOError:
-                # Alright I give up on you
-                return ''
 
     # If the template is a list
     if type(template) is list:
@@ -212,7 +218,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a partial
         elif tag == 'partial':
             # Load the partial
-            partial = get_partial(key)
+            partial = _get_partial(key, partials_dict,
+                                   partials_path, partials_ext)
 
             # Find how much to pad the partial
             left = output.split('\n')[-1]
