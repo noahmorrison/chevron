@@ -40,6 +40,32 @@ def _html_escape(string):
         string = string.replace(char, html_codes[char])
     return string
 
+
+def _get_key(key, scopes):
+    """Get a key from the current scope"""
+
+    # If the key is a dot
+    if key == '.':
+        # Then just return the current scope
+        return scopes[0]
+
+    # Loop through the scopes
+    for scope in scopes:
+        try:
+            # For every dot seperated key
+            for key in key.split('.'):
+                # Move into the scope
+                scope = scope[key]
+            # Return the last scope we got
+            return scope
+        except (TypeError, KeyError):
+            # We couldn't find the key in the current scope
+            # We'll try again on the next pass
+            pass
+
+    # We couldn't find the key in any of the scopes
+    return ''
+
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding=0, def_ldel='{{', def_rdel='}}',
            scopes=None):
@@ -74,31 +100,6 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     Returns:
     A string containing the rendered template.
     """
-
-    def get_key(key):
-        """Get a key from the current scope"""
-
-        # If the key is a dot
-        if key == '.':
-            # Then just return the current scope
-            return scopes[0]
-
-        # Loop through the scopes
-        for scope in scopes:
-            try:
-                # For every dot seperated key
-                for key in key.split('.'):
-                    # Move into the scope
-                    scope = scope[key]
-                # Return the last scope we got
-                return scope
-            except (TypeError, KeyError):
-                # We couldn't find the key in the current scope
-                # We'll try again on the next pass
-                pass
-
-        # We couldn't find the key in any of the scopes
-        return ''
 
     def get_partial(name):
         """Load a partial"""
@@ -162,7 +163,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a variable tag
         elif tag == 'variable':
             # Add the html escaped key to the output
-            thing = get_key(key)
+            thing = _get_key(key, scopes)
             if type(thing) != unicode:
                 thing = unicode(str(thing), 'utf-8')
             output += _html_escape(thing)
@@ -170,12 +171,12 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a no html escape tag
         elif tag == 'no escape':
             # Just lookup the key and add it
-            output += str(get_key(key))
+            output += str(_get_key(key, scopes))
 
         # If we're a section tag
         elif tag == 'section':
             # Get the sections scope
-            scope = get_key(key)
+            scope = _get_key(key, scopes)
 
             # If the scope is a list
             if type(scope) is list:
@@ -205,7 +206,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're an inverted section
         elif tag == 'inverted section':
             # Add the flipped scope to the scopes
-            scope = get_key(key)
+            scope = _get_key(key, scopes)
             scopes.insert(0, not scope)
 
         # If we're a partial
