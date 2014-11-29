@@ -21,6 +21,25 @@ except:
     python3 = True
 
 
+#
+# Helper functions
+#
+
+def _html_escape(string):
+    """HTML escape all of these " & < >"""
+
+    html_codes = {
+        '"': '&quot;',
+        '<': '&lt;',
+        '>': '&gt;',
+    }
+
+    # & must be handled first
+    string = string.replace('&', '&amp;')
+    for char in html_codes:
+        string = string.replace(char, html_codes[char])
+    return string
+
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding=0, def_ldel='{{', def_rdel='}}',
            scopes=None):
@@ -55,21 +74,6 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     Returns:
     A string containing the rendered template.
     """
-
-    def html_escape(string):
-        """HTML escape all of these " & < >"""
-
-        html_codes = {
-            '"': '&quot;',
-            '<': '&lt;',
-            '>': '&gt;',
-        }
-
-        # & must be handled first
-        string = string.replace('&', '&amp;')
-        for char in html_codes:
-            string = string.replace(char, html_codes[char])
-        return string
 
     def get_key(key):
         """Get a key from the current scope"""
@@ -161,7 +165,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             thing = get_key(key)
             if type(thing) != unicode:
                 thing = unicode(str(thing), 'utf-8')
-            output += html_escape(thing)
+            output += _html_escape(thing)
 
         # If we're a no html escape tag
         elif tag == 'no escape':
