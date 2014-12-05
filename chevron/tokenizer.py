@@ -8,11 +8,22 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
     using file-like objects. It also accepts a string containing
     the template.
 
+
     Arguments:
+
     template -- a file-like object, or a string of a mustache template
 
+    def_ldel -- The default left delimiter
+                ("{{" by default, as in spec compliant mustache)
+
+    def_rdel -- The default right delimiter
+                ("}}" by default, as in spec compliant mustache)
+
+
     Returns:
+
     A generator of mustache tags in the form of a tuple
+
     -- (tag_type, tag_key)
 
     Where tag_type is one of:
@@ -22,6 +33,7 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
      * end
      * partial
      * no escape
+
     And tag_key is either the key or in the case of a literal tag,
     the literal itself.
     """
@@ -37,6 +49,7 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
         '&': 'no escape'
     }
 
+    # If the template is a file-like object then read it
     try:
         template = template.read()
     except AttributeError:
@@ -46,10 +59,16 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
     open_sections = []
     l_del = def_ldel
     r_del = def_rdel
+
     while template:
+
         try:
+            # Look for the next tag and move the template to it
             literal, template = template.split(l_del, 1)
+
+        # There are no more tags in the template?
         except ValueError:
+            # Then the rest of the template is a literal
             literal, template = (template, '')
 
         # If the template is completed
@@ -86,7 +105,8 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
 
         # If we might be a no html escape tag
         if tag_type == 'no escape?':
-            # If we have a third curly brace
+            # And we have a third curly brace
+            # (And are using curly braces as delimiters)
             if template[0] == '}' and l_del == '{{' and r_del == '}}':
                 # Then we are a no html escape tag
                 template = template[1:]
@@ -112,8 +132,8 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
             last_section = open_sections.pop()
             if tag_key != last_section:
                 # Otherwise we need to complain
-                raise SyntaxError("End tag does not match ."
-                                  "the currently opened section")
+                raise SyntaxError('End tag does not match '
+                                  'the currently opened section')
 
         # Check right side if we might be a standalone
         if is_standalone and tag_type not in ['variable', 'no escape']:
