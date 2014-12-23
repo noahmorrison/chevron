@@ -1,6 +1,112 @@
 #!/usr/bin/python
 
 
+#
+# Helper functions
+#
+
+def grab_literal(template, l_del):
+    """Parse a literal from the template"""
+
+    try:
+        # Look for the next tag and move the template to it
+        literal, template = template.split(l_del, 1)
+        return (literal, template)
+
+    # There are no more tags in the template?
+    except ValueError:
+        # Then the rest of the template is a literal
+        return (template, '')
+
+
+def l_sa_check(template, literal, is_standalone):
+    """Do a preliminary check to see if a tag could be a standalone"""
+
+    # If there is a newline, or the previous tag was a standalone
+    if literal.find('\n') != -1 or is_standalone:
+        padding = literal.split('\n')[-1]
+
+        # If all the characters since the last newline are spaces
+        if padding.isspace() or padding == '':
+            # Then the next tag could be a standalone
+            return True
+        else:
+            # Otherwise it can't be
+            return False
+
+
+def r_sa_check(template, tag_type, is_standalone):
+    """Do a final checkto see if a tag could be a standalone"""
+
+    # Check right side if we might be a standalone
+    if is_standalone and tag_type not in ['variable', 'no escape']:
+        on_newline = template.split('\n', 1)
+
+        # If the stuff to the right of us are spaces we're a standalone
+        if on_newline[0].isspace() or not on_newline[0]:
+            return True
+        else:
+            return False
+
+    # If we're a tag can't be a standalone
+    else:
+        return False
+
+
+def parse_tag(template, l_del, r_del):
+    """Parse a tag from a template"""
+
+    tag_types = {
+        '!': 'comment',
+        '#': 'section',
+        '^': 'inverted section',
+        '/': 'end',
+        '>': 'partial',
+        '=': 'set delimiter?',
+        '{': 'no escape?',
+        '&': 'no escape'
+    }
+
+    # Get the tag
+    tag, template = template.split(r_del, 1)
+
+    # Find the type meaning of the first character
+    tag_type = tag_types.get(tag[0], 'variable')
+
+    # If the type is not a variable
+    if tag_type != 'variable':
+        # Then that first character is not needed
+        tag = tag[1:]
+
+    # If we might be a set delimiter tag
+    if tag_type == 'set delimiter?':
+        # Double check to make sure we are
+        if tag.endswith('='):
+            tag_type = 'set delimiter'
+            # Remove the equal sign
+            tag = tag[:-1]
+
+        # Otherwise we should complain
+        else:
+            raise SyntaxError('Unmatched set delimiter tag')
+
+    # If we might be a no html escape tag
+    elif tag_type == 'no escape?':
+        # And we have a third curly brace
+        # (And are using curly braces as delimiters)
+        if l_del == '{{' and r_del == '}}' and template.startswith('}'):
+            # Then we are a no html escape tag
+            template = template[1:]
+            tag_type = 'no escape'
+
+    # Strip the whitespace off the key and return
+    return ((tag_type, tag.strip()), template)
+
+
+#
+# The main tokenizing function
+#
+
 def tokenize(template, def_ldel='{{', def_rdel='}}'):
     """Tokenize a mustache template
 
@@ -38,17 +144,6 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
     the literal itself.
     """
 
-    tag_types = {
-        '!': 'comment',
-        '#': 'section',
-        '^': 'inverted section',
-        '/': 'end',
-        '>': 'partial',
-        '=': 'set delimiter?',
-        '{': 'no escape?',
-        '&': 'no escape'
-    }
-
     # If the template is a file-like object then read it
     try:
         template = template.read()
@@ -61,15 +156,7 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
     r_del = def_rdel
 
     while template:
-
-        try:
-            # Look for the next tag and move the template to it
-            literal, template = template.split(l_del, 1)
-
-        # There are no more tags in the template?
-        except ValueError:
-            # Then the rest of the template is a literal
-            literal, template = (template, '')
+        literal, template = grab_literal(template, l_del)
 
         # If the template is completed
         if not template:
@@ -77,48 +164,20 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
             yield ('literal', literal)
             break
 
-        # Checking if the next tag could be a standalone
-        # If there is a newline, or the previous tag was a standalone
-        if literal.find('\n') != -1 or is_standalone:
-            padding = literal.split('\n')[-1]
+        # Do the first check to see if we could be a standalone
+        is_standalone = l_sa_check(template, literal, is_standalone)
 
-            # If all the characters since the last newline are spaces
-            if padding.isspace() or padding == '':
-                # Then the next tag could be a standalone
-                is_standalone = True
-            else:
-                # Otherwise it can't be
-                is_standalone = False
+        # Parse the tag
+        tag, template = parse_tag(template, l_del, r_del)
+        tag_type, tag_key = tag
 
-        # Start work on the tag
-        # Find the type meaning of the first character
-        tag_type = tag_types.get(template[0], 'variable')
+        # Special tag logic
 
-        # If the type is not a variable
-        if tag_type != 'variable':
-            # Then that first character is not needed
-            template = template[1:]
-
-        # Grab and strip the whitespace off the key
-        tag_key, template = template.split(r_del, 1)
-        tag_key = tag_key.strip()
-
-        # If we might be a no html escape tag
-        if tag_type == 'no escape?':
-            # And we have a third curly brace
-            # (And are using curly braces as delimiters)
-            if template[0] == '}' and l_del == '{{' and r_del == '}}':
-                # Then we are a no html escape tag
-                template = template[1:]
-                tag_type = 'no escape'
-
-        # If we might be a set delimiter tag
-        elif tag_type == 'set delimiter?':
-            # If our key ends with an equal sign
-            if tag_key.endswith('='):
-                # Then get and set the delimiters
-                dels = tag_key[:-1].strip().split(' ')
-                l_del, r_del = dels[0], dels[-1]
+        # If we are a set delimiter tag
+        if tag_type == 'set delimiter':
+            # Then get and set the delimiters
+            dels = tag_key.strip().split(' ')
+            l_del, r_del = dels[0], dels[-1]
 
         # If we are a section tag
         elif tag_type in ['section', 'inverted section']:
@@ -135,23 +194,18 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
                 raise SyntaxError('End tag does not match '
                                   'the currently opened section')
 
-        # Check right side if we might be a standalone
-        if is_standalone and tag_type not in ['variable', 'no escape']:
-            on_newline = template.split('\n', 1)
+        # Do the second check to see if we're a standalone
+        is_standalone = r_sa_check(template, tag_type, is_standalone)
 
-            # If the stuff to the right of us are spaces we're a standalone
-            if on_newline[0].isspace() or not on_newline[0]:
-                # Remove the stuff before the newline
-                template = on_newline[-1]
-                if tag_type != 'partial':
-                    # Then we need to remove the spaces from the left
-                    literal = literal.rstrip(' ')
-            else:
-                is_standalone = False
+        # Which if we are
+        if is_standalone:
+            # Remove the stuff before the newline
+            template = template.split('\n', 1)[-1]
 
-        # If we're a tag can't be a standalone
-        else:
-            is_standalone = False
+            # Partials need to keep the spaces on their left
+            if tag_type != 'partial':
+                # But other tags don't
+                literal = literal.rstrip(' ')
 
         # Start yielding
         # Ignore literals that are empty
