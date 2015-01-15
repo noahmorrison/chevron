@@ -53,9 +53,9 @@ def _get_key(key, scopes):
     for scope in scopes:
         try:
             # For every dot seperated key
-            for key in key.split('.'):
+            for child in key.split('.'):
                 # Move into the scope
-                scope = scope[key]
+                scope = scope[child]
             # Return the last scope we got
             return scope
         except (TypeError, KeyError):
