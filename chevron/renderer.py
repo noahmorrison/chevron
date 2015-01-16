@@ -144,7 +144,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     # If the template is a list
     if type(template) is list:
         # Then we don't need to tokenize it
-        tokens = template
+        # But it does need to be a generator
+        tokens = (token for token in template)
     else:
         # Otherwise make a generator
         tokens = tokenize(template, def_ldel, def_rdel)
