@@ -115,6 +115,20 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_recursion(self):
+        args = {
+            'template': '{{# 1.2 }}{{# data }}{{.}}{{/ data }}{{/ 1.2 }}',
+            'data': {'1': {'2': [{'data': ["1", "2", "3"]}]}}
+        }
+
+        try:
+            result = chevron.render(**args)
+        except RuntimeError:
+            result = 'recursion'
+        expected = '123'
+
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":
