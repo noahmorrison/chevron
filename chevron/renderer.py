@@ -217,11 +217,16 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 for thing in scope:
                     # Append it as the most recent scope and render
                     new_scope = [thing] + scopes
-                    output += render(template=tags, scopes=new_scope,
-                                     partials_path=partials_path,
-                                     partials_ext=partials_ext,
-                                     partials_dict=partials_dict,
-                                     def_ldel=def_ldel, def_rdel=def_rdel)
+                    rend = render(template=tags, scopes=new_scope,
+                                  partials_path=partials_path,
+                                  partials_ext=partials_ext,
+                                  partials_dict=partials_dict,
+                                  def_ldel=def_ldel, def_rdel=def_rdel)
+
+                    if python3:
+                        output += rend
+                    else:
+                        output += rend.decode('utf-8')
 
             else:
                 # Otherwise we're just a scope section
