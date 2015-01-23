@@ -129,6 +129,17 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_unicode_inside_list(self):
+        args = {
+            'template': '{{#list}}{{.}}{{/list}}',
+            'data': {'list': ['☠']}
+        }
+
+        result = chevron.render(**args)
+        expected = '☠'
+
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":
