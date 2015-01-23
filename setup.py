@@ -12,7 +12,6 @@ setup(name='chevron',
       author='noah morrison',
       author_email='noah@morrison.ph',
       url='',
-      download_url='/tarball/0.7.1',
       packages=['chevron'],
       entry_points={
           'console_scripts': ['chevron=chevron:cli_main']
