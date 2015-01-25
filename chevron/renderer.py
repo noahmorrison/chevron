@@ -12,13 +12,15 @@ except (ValueError, SystemError):
     from tokenizer import tokenize
 
 
-try:  # python 2
-    unicode
-    python3 = False
-except:
+import sys
+if sys.version_info[0] == 3:
+    python3 = True
+
     def unicode(x, y):
         return x
-    python3 = True
+
+else:  # python 2
+    python3 = False
 
 
 #
