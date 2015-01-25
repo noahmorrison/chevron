@@ -6,13 +6,13 @@ except ImportError:
     from distutils.core import setup
 
 setup(name='chevron',
-      version='0.7.3',
+      version='0.7.4',
       license='MIT',
       description='Mustache templating language renderer',
       author='noah morrison',
       author_email='noah@morrison.ph',
       url='',
-      download_url='/tarball/0.7.3',
+      download_url='/tarball/0.7.4',
       packages=['chevron'],
       entry_points={
           'console_scripts': ['chevron=chevron:cli_main']
