@@ -5,10 +5,14 @@ try:
 except ImportError:
     from distutils.core import setup
 
+import pypandoc
+readme = pypandoc.convert('README.md', 'rst')
+
 setup(name='chevron',
       version='0.7.1',
       license='MIT',
       description='Mustache templating language renderer',
+      long_description=readme,
       author='noah morrison',
       author_email='noah@morrison.ph',
       url='https://github.com/noahmorrison/chevron',
