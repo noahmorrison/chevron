@@ -2,18 +2,14 @@
 
 import json
 
-from sys import argv
-
 #
 # Python 2 and 3, module and script compatability
 # If you know a better way please tell me :(
 #
 
 try:
-    from .tokenizer import tokenize
     from .renderer import render
 except (ValueError, SystemError):
-    from tokenizer import tokenize
     from renderer import render
 
 
