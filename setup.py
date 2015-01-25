@@ -5,18 +5,30 @@ try:
 except ImportError:
     from distutils.core import setup
 
+try:
+    import pypandoc
+    readme = pypandoc.convert('README.md', 'rst')
+except ImportError:
+    print('\n\n!!!\npypandoc not loaded\n!!!\n')
+    readme = ''
+
+
 setup(name='chevron',
       version='0.7.4',
       license='MIT',
+
       description='Mustache templating language renderer',
+      long_description=readme,
+
       author='noah morrison',
       author_email='noah@morrison.ph',
-      url='',
-      download_url='/tarball/0.7.4',
+      url='https://github.com/noahmorrison/chevron',
+
       packages=['chevron'],
       entry_points={
           'console_scripts': ['chevron=chevron:cli_main']
       },
+
       classifiers=[
           'Development Status :: 4 - Beta',
 
