@@ -8,18 +8,24 @@ except ImportError:
 import pypandoc
 readme = pypandoc.convert('README.md', 'rst')
 
+
 setup(name='chevron',
-      version='0.7.1',
+      version='0.7.2',
       license='MIT',
+
       description='Mustache templating language renderer',
       long_description=readme,
+
       author='noah morrison',
       author_email='noah@morrison.ph',
+
       url='https://github.com/noahmorrison/chevron',
+
       packages=['chevron'],
       entry_points={
           'console_scripts': ['chevron=chevron:cli_main']
       },
+
       classifiers=[
           'Development Status :: 4 - Beta',
 
