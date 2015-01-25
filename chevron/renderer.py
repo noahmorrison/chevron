@@ -169,15 +169,10 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
         # If the current scope is falsy and not the only scope
         elif not current_scope and len(scopes) != 1:
-            # If we're a section tag
-            if tag == 'section':
-                # Set it as the most recent scope
-                scopes.insert(0, scope)
-
-            # If we're an inverted section tag
-            elif tag == 'inverted section':
-                # Set the flipped scope as the most recent scope
-                scopes.insert(0, not scope)
+            if tag in ['section', 'inverted section']:
+                # Set the most recent scope to a falsy value
+                # (I heard False is a good one)
+                scopes.insert(0, False)
 
         # If we're a literal tag
         elif tag == 'literal':
