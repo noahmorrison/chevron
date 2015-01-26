@@ -140,6 +140,17 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_null(self):
+        args = {
+            'template': '{{a}}',
+            'data': {'a': None}
+        }
+
+        result = chevron.render(**args)
+        expected = ''
+
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":
