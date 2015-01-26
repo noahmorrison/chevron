@@ -59,7 +59,8 @@ def _get_key(key, scopes):
                 # Move into the scope
                 scope = scope[child]
             # Return the last scope we got
-            return scope
+            # or an empty string if falsy
+            return scope or ''
         except (TypeError, KeyError):
             # We couldn't find the key in the current scope
             # We'll try again on the next pass
