@@ -14,7 +14,7 @@ except (ImportError, RuntimeError):
 
 
 setup(name='chevron',
-      version='0.8.3',
+      version='0.8.4',
       license='MIT',
 
       description='Mustache templating language renderer',
