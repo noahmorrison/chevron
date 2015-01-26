@@ -140,14 +140,19 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
-    def test_null(self):
+    def test_falsy(self):
         args = {
-            'template': '{{a}}',
-            'data': {'a': None}
+            'template': '{{null}}{{false}}{{list}}{{dict}}{{zero}}',
+            'data': {'null': None,
+                     'false': False,
+                     'list': [],
+                     'dict': {},
+                     'zero': 0
+                     }
         }
 
         result = chevron.render(**args)
-        expected = ''
+        expected = 'False0'
 
         self.assertEqual(result, expected)
 
