@@ -7,14 +7,14 @@ except ImportError:
 
 try:
     import pypandoc
-    readme = pypandoc.convert('README.md', 'rst')
-except ImportError:
+    readme = pypandoc.convert('README.md', 'rest')
+except (ImportError, RuntimeError):
     print('\n\n!!!\npypandoc not loaded\n!!!\n')
     readme = ''
 
 
 setup(name='chevron',
-      version='0.8.1',
+      version='0.8.3',
       license='MIT',
 
       description='Mustache templating language renderer',
