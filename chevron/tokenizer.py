@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+# Globals
+_CURRENT_LINE = 1
+_LAST_TAG_LINE = None
+
 
 #
 # Helper functions
@@ -8,9 +12,12 @@
 def grab_literal(template, l_del):
     """Parse a literal from the template"""
 
+    global _CURRENT_LINE
+
     try:
         # Look for the next tag and move the template to it
         literal, template = template.split(l_del, 1)
+        _CURRENT_LINE += literal.count('\n')
         return (literal, template)
 
     # There are no more tags in the template?
@@ -55,6 +62,8 @@ def r_sa_check(template, tag_type, is_standalone):
 
 def parse_tag(template, l_del, r_del):
     """Parse a tag from a template"""
+    global _CURRENT_LINE
+    global _LAST_TAG_LINE
 
     tag_types = {
         '!': 'comment',
@@ -88,7 +97,8 @@ def parse_tag(template, l_del, r_del):
 
         # Otherwise we should complain
         else:
-            raise SyntaxError('Unmatched set delimiter tag')
+            raise SyntaxError('unclosed set delimiter tag\n'
+                              'at line {0}'.format(_CURRENT_LINE))
 
     # If we might be a no html escape tag
     elif tag_type == 'no escape?':
@@ -183,6 +193,7 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
         elif tag_type in ['section', 'inverted section']:
             # Then open a new section
             open_sections.append(tag_key)
+            _LAST_TAG_LINE = _CURRENT_LINE
 
         # If we are an end tag
         elif tag_type == 'end':
@@ -191,8 +202,11 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
             last_section = open_sections.pop()
             if tag_key != last_section:
                 # Otherwise we need to complain
-                raise SyntaxError('End tag does not match '
-                                  'the currently opened section')
+                raise SyntaxError('Trying to close tag "{0}"\n'
+                                  'last open tag is "{1}"\n'
+                                  'line {2}'
+                                  .format(tag_key, last_section,
+                                          _CURRENT_LINE + 1))
 
         # Do the second check to see if we're a standalone
         is_standalone = r_sa_check(template, tag_type, is_standalone)
@@ -219,4 +233,7 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
     # If there are any open sections when we're done
     if open_sections:
         # Then we need to complain
-        raise SyntaxError("End of file while a section was open")
+        raise SyntaxError('Unexpected EOF\n'
+                          'the tag "{0}" was never closed\n'
+                          'was opened at line {1}'
+                          .format(open_sections[-1], _LAST_TAG_LINE))
