@@ -63,6 +63,13 @@ class ExpandedCoverage(unittest.TestCase):
         self.assertRaises(SyntaxError, chevron.render, **test1)
         self.assertRaises(SyntaxError, chevron.render, **test2)
 
+    def test_bad_set_delimiter_tag(self):
+        args = {
+            'template': '{{= bad!}}'
+        }
+
+        self.assertRaises(SyntaxError, chevron.render, **args)
+
     def test_unicode_basic(self):
         args = {
             'template': '(╯°□°）╯︵ ┻━┻'
@@ -121,10 +128,7 @@ class ExpandedCoverage(unittest.TestCase):
             'data': {'1': {'2': [{'data': ["1", "2", "3"]}]}}
         }
 
-        try:
-            result = chevron.render(**args)
-        except RuntimeError:
-            result = 'recursion'
+        result = chevron.render(**args)
         expected = '123'
 
         self.assertEqual(result, expected)

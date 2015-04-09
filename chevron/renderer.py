@@ -8,7 +8,7 @@
 
 try:
     from .tokenizer import tokenize
-except (ValueError, SystemError):
+except (ValueError, SystemError):  # python 2
     from tokenizer import tokenize
 
 
@@ -234,7 +234,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
                     if python3:
                         output += rend
-                    else:
+                    else:  # python 2
                         output += rend.decode('utf-8')
 
             else:

@@ -9,7 +9,7 @@ import json
 
 try:
     from .renderer import render
-except (ValueError, SystemError):
+except (ValueError, SystemError):  # python 2
     from renderer import render
 
 
