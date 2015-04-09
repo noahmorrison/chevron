@@ -165,7 +165,7 @@ class ExpandedCoverage(unittest.TestCase):
             'template': '{{comp.attr}} {{int.attr}}',
             'data': {'comp': Complex(),
                      'int': 1
-                    }
+                     }
         }
 
         result = chevron.render(**args)
