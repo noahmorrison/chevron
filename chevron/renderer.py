@@ -57,17 +57,22 @@ def _get_key(key, scopes):
             # For every dot seperated key
             for child in key.split('.'):
                 # Move into the scope
-                scope = scope[child]
             # Return the last scope we got
             # or an empty string if falsy
 
+                try:
+                    # Try subscripting (Normal dictionaries)
+                    scope = scope[child]
+                except (TypeError, AttributeError):
+                    # Try the dictionary (Complex types)
+                    scope = scope.__dict__[child]
             if scope is 0:
                 return 0
             if scope is False:
                 return False
 
             return scope or ''
-        except (TypeError, KeyError):
+        except (AttributeError, KeyError):
             # We couldn't find the key in the current scope
             # We'll try again on the next pass
             pass

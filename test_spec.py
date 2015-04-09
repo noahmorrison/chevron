@@ -156,6 +156,23 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_complex(self):
+        class Complex:
+            def __init__(self):
+                self.attr = 42
+
+        args = {
+            'template': '{{comp.attr}} {{int.attr}}',
+            'data': {'comp': Complex(),
+                     'int': 1
+                    }
+        }
+
+        result = chevron.render(**args)
+        expected = '42 '
+
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":
