@@ -57,15 +57,15 @@ def _get_key(key, scopes):
             # For every dot seperated key
             for child in key.split('.'):
                 # Move into the scope
-            # Return the last scope we got
-            # or an empty string if falsy
-
                 try:
                     # Try subscripting (Normal dictionaries)
                     scope = scope[child]
                 except (TypeError, AttributeError):
                     # Try the dictionary (Complex types)
                     scope = scope.__dict__[child]
+
+            # Return an empty string if falsy, with two exceptions
+            # 0 should return 0, and False should return False
             if scope is 0:
                 return 0
             if scope is False:
