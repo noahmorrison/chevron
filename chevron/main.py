@@ -26,11 +26,7 @@ def main(template, data={}, **kwargs):
         }
 
         args.update(kwargs)
-        try:
-            return render(**args)
-        except SyntaxError as e:
-            print('Chevron: syntax error')
-            print('    ' + '\n    '.join(e.args[0].split('\n')))
+        return render(**args)
 
 
 def cli_main():
@@ -81,10 +77,12 @@ def cli_main():
 
     args = vars(parser.parse_args())
 
-    result = main(**args)
-    if result is None:
+    try:
+        print(main(**args))
+    except SyntaxError as e:
+        print('Chevron: syntax error')
+        print('    ' + '\n    '.join(e.args[0].split('\n')))
         exit(1)
-    print(result)
 
 if __name__ == '__main__':
     cli_main()
