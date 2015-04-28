@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
-import json
+try:
+    import yaml as json
+except ImportError:
+    import json
 
 #
 # Python 2 and 3, module and script compatability
