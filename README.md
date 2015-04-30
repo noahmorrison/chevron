@@ -16,7 +16,7 @@ And in about 70% the time of [Stache](https://github.com/hyperturtle/Stache) (A 
 
 ### chevron is pep8 ###
 
-The pep8 command is run by [travis](https://travis-ci.org/noahmorrison/chevron) to ensure consistency.
+The flake8 command is run by [travis](https://travis-ci.org/noahmorrison/chevron) to ensure consistency.
 
 ### chevron is spec compliant ###
 
@@ -35,7 +35,7 @@ USAGE
 
 Commandline usage: (if installed via pypi)
 ```
-usage: chevron [-h] [-d DATA] [-p PARTIALS_PATH] [-e PARTIALS_EXT]
+usage: chevron [-h] [-v] [-d DATA] [-p PARTIALS_PATH] [-e PARTIALS_EXT]
                [-l DEF_LDEL] [-r DEF_RDEL]
                template
 
@@ -44,6 +44,7 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
   -d DATA, --data DATA  The json data file
   -p PARTIALS_PATH, --path PARTIALS_PATH
                         The directory where your partials reside
@@ -143,9 +144,6 @@ $ pip install chevron
 
 TODO
 ---
-
-* add postmortem debugging
-* add caching of templates
 
 * get popular
 * have people complain
