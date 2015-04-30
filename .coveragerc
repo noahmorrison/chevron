@@ -4,3 +4,4 @@ exclude_lines =
     def cli_main
 
     \# python 2
+    \# not tested

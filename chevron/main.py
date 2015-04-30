@@ -2,7 +2,7 @@
 
 try:
     import yaml as json
-except ImportError:
+except ImportError:  # not tested
     import json
 
 #
