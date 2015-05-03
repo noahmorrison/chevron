@@ -5,11 +5,6 @@ try:
 except ImportError:  # not tested
     import json
 
-#
-# Python 2 and 3, module and script compatability
-# If you know a better way please tell me :(
-#
-
 try:
     from .renderer import render
 except (ValueError, SystemError):  # python 2
