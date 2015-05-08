@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 # Globals
 _CURRENT_LINE = 1
 _LAST_TAG_LINE = None
