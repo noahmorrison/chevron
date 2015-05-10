@@ -11,6 +11,6 @@ install:
 script:
   - flake8 .
   - ./test_spec.py
-  - coverage -x ./test_spec.py
+  - coverage run --source=chevron ./test_spec.py
 after_success:
   - coveralls
