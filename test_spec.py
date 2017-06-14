@@ -177,6 +177,20 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    # https://github.com/noahmorrison/chevron/issues/17
+    def test_inverted_coercion(self):
+        args = {
+            'template': '{{#object}}{{^child}}{{.}}{{/child}}{{/object}}',
+            'data': {'object': [
+                'foo', 'bar', {'child': True}, 'baz'
+            ]}
+        }
+
+        result = chevron.render(**args)
+        expected = 'foobarbaz'
+
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":

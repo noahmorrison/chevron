@@ -191,6 +191,11 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         elif tag == 'variable':
             # Add the html escaped key to the output
             thing = _get_key(key, scopes)
+            if thing is True and key == '.':
+                # if we've coerced into a boolean by accident
+                # (inverted tags do this)
+                # then get the un-coerced object (next in the stack)
+                thing = scopes[1]
             if type(thing) != unicode:
                 thing = unicode(str(thing), 'utf-8')
             output += _html_escape(thing)
