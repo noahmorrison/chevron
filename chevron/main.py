@@ -82,5 +82,6 @@ def cli_main():
         print('    ' + '\n    '.join(e.args[0].split('\n')))
         exit(1)
 
+
 if __name__ == '__main__':
     cli_main()

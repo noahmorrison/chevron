@@ -41,6 +41,7 @@ def _test_case_from_path(json_path):
     # Return the built class
     return MustacheTestCase
 
+
 # Create TestCase for each json file
 for spec in SPECS:
     # Ignore optional tests
