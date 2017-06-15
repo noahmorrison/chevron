@@ -35,10 +35,15 @@ deploy:
     skip_upload_docs: true
     on:
       tags: true
+      branch: master
+      condition: $TRAVIS_PYTHON_VERSION = "3.5"
   - provider: pypi
-    server: https://testpypi.python.org
+    server: https://testpypi.python.org/pypi
     user: noahmorrison
     password:
       secure: GK+PXWWCczHMQAptgAA6umma0kP+fPsCktHzDnpb4Pa7RZBjxjS1mbRtwSfMm8gWcRYkqjO0la/t3TUP3qjfa+x5JmIwy2YTveBKmSjTxLAb9n7fCWZEGu9GWgGvfsmg2Hhi6NYUp9U7ggtoBXQ4AHgmnPyDCL2TQK32PKj5soM=
     distributions: sdist bdist_wheel
     skip_upload_docs: true
+    on:
+      all_branches: true
+      condition: $TRAVIS_PYTHON_VERSION = "3.5"
