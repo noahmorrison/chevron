@@ -2,26 +2,43 @@ sudo: false
 language: python
 
 python:
-  - "2.6"
-  - "2.7"
-  - "3.2"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "pypy"
+  - '2.6'
+  - '2.7'
+  - '3.2'
+  - '3.3'
+  - '3.4'
+  - '3.5'
+  - pypy
 
 matrix:
   include:
-    - python: 3.5
-      env:
-      - TOXENV=flake8
+  - python: 3.5
+    env:
+    - TOXENV=flake8
 
 install:
-  - pip install coveralls
-  - pip install tox-travis
+- pip install coveralls
+- pip install tox-travis
 
 script:
-  - tox
+- tox
 
 after_success:
-  - coveralls
+- coveralls
+
+deploy:
+  - provider: pypi
+    user: noahmorrison
+    password:
+      secure: GK+PXWWCczHMQAptgAA6umma0kP+fPsCktHzDnpb4Pa7RZBjxjS1mbRtwSfMm8gWcRYkqjO0la/t3TUP3qjfa+x5JmIwy2YTveBKmSjTxLAb9n7fCWZEGu9GWgGvfsmg2Hhi6NYUp9U7ggtoBXQ4AHgmnPyDCL2TQK32PKj5soM=
+    distributions: sdist bdist_wheel
+    skip_upload_docs: true
+    on:
+      tags: true
+  - provider: pypi
+    server: https://testpypi.python.org
+    user: noahmorrison
+    password:
+      secure: GK+PXWWCczHMQAptgAA6umma0kP+fPsCktHzDnpb4Pa7RZBjxjS1mbRtwSfMm8gWcRYkqjO0la/t3TUP3qjfa+x5JmIwy2YTveBKmSjTxLAb9n7fCWZEGu9GWgGvfsmg2Hhi6NYUp9U7ggtoBXQ4AHgmnPyDCL2TQK32PKj5soM=
+    distributions: sdist bdist_wheel
+    skip_upload_docs: true
