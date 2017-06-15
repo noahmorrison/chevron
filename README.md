@@ -1,4 +1,4 @@
-[![Latest Version](https://pypip.in/version/chevron/badge.svg)](https://pypi.python.org/pypi/chevron/)
+[![PyPI version](https://badge.fury.io/py/chevron.svg)](https://badge.fury.io/py/chevron)
 [![Build Status](https://travis-ci.org/noahmorrison/chevron.svg?branch=master)](https://travis-ci.org/noahmorrison/chevron)
 [![Coverage Status](https://img.shields.io/coveralls/noahmorrison/chevron.svg)](https://coveralls.io/r/noahmorrison/chevron?branch=master)
 
