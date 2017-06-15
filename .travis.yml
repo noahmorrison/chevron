@@ -18,7 +18,10 @@ install:
   - pip install coveralls
   - pip install tox-travis
 
-script: tox
+script:
+  - tox
+  - coverage run --source=chevron ./test_spec.py
+  - coverage report -m
 
 after_success:
   - coveralls
