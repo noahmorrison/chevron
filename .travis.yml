@@ -1,16 +1,49 @@
+sudo: false
 language: python
+
 python:
-  - "2.6"
-  - "2.7"
-  - "3.2"
-  - "3.3"
-  - "3.4"
+  - '2.6'
+  - '2.7'
+  - '3.2'
+  - '3.3'
+  - '3.4'
+  - '3.5'
+  - pypy
+
+matrix:
+  include:
+  - python: 3.5
+    env:
+    - TOXENV=flake8
+
 install:
-  - pip install flake8
-  - pip install coveralls
+- pip install coveralls
+- pip install tox-travis
+
 script:
-  - flake8 .
-  - ./test_spec.py
-  - coverage run --source=chevron ./test_spec.py
+- tox
+
 after_success:
-  - coveralls
+- coveralls
+
+deploy:
+  - provider: pypi
+    user: noahmorrison
+    password:
+      secure: GK+PXWWCczHMQAptgAA6umma0kP+fPsCktHzDnpb4Pa7RZBjxjS1mbRtwSfMm8gWcRYkqjO0la/t3TUP3qjfa+x5JmIwy2YTveBKmSjTxLAb9n7fCWZEGu9GWgGvfsmg2Hhi6NYUp9U7ggtoBXQ4AHgmnPyDCL2TQK32PKj5soM=
+    distributions: sdist bdist_wheel
+    skip_upload_docs: true
+    on:
+      tags: true
+      branch: master
+      condition: $TRAVIS_PYTHON_VERSION = "3.5"
+  - provider: pypi
+    server: https://testpypi.python.org/pypi
+    user: noahmorrison
+    password:
+      secure: GK+PXWWCczHMQAptgAA6umma0kP+fPsCktHzDnpb4Pa7RZBjxjS1mbRtwSfMm8gWcRYkqjO0la/t3TUP3qjfa+x5JmIwy2YTveBKmSjTxLAb9n7fCWZEGu9GWgGvfsmg2Hhi6NYUp9U7ggtoBXQ4AHgmnPyDCL2TQK32PKj5soM=
+    distributions: sdist bdist_wheel
+    skip_upload_docs: true
+    on:
+      all_branches: true
+      condition: $TRAVIS_PYTHON_VERSION = "3.5"
