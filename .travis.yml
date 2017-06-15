@@ -8,11 +8,13 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
+  - "pypy"
 
 matrix:
   include:
     - python: 3.5
-      env: TOXENV=flake8
+      env:
+      - TOXENV=flake8
 
 install:
   - pip install coveralls
@@ -20,8 +22,6 @@ install:
 
 script:
   - tox
-  - coverage run --source=chevron ./test_spec.py
-  - coverage report -m
 
 after_success:
   - coveralls
