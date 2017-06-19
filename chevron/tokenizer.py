@@ -3,9 +3,13 @@ _CURRENT_LINE = 1
 _LAST_TAG_LINE = None
 
 
+class ChevronError(SyntaxError):
+    pass
+
 #
 # Helper functions
 #
+
 
 def grab_literal(template, l_del):
     """Parse a literal from the template"""
@@ -95,8 +99,8 @@ def parse_tag(template, l_del, r_del):
 
         # Otherwise we should complain
         else:
-            raise SyntaxError('unclosed set delimiter tag\n'
-                              'at line {0}'.format(_CURRENT_LINE))
+            raise ChevronError('unclosed set delimiter tag\n'
+                               'at line {0}'.format(_CURRENT_LINE))
 
     # If we might be a no html escape tag
     elif tag_type == 'no escape?':
@@ -200,11 +204,11 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
             last_section = open_sections.pop()
             if tag_key != last_section:
                 # Otherwise we need to complain
-                raise SyntaxError('Trying to close tag "{0}"\n'
-                                  'last open tag is "{1}"\n'
-                                  'line {2}'
-                                  .format(tag_key, last_section,
-                                          _CURRENT_LINE + 1))
+                raise ChevronError('Trying to close tag "{0}"\n'
+                                   'last open tag is "{1}"\n'
+                                   'line {2}'
+                                   .format(tag_key, last_section,
+                                           _CURRENT_LINE + 1))
 
         # Do the second check to see if we're a standalone
         is_standalone = r_sa_check(template, tag_type, is_standalone)
@@ -231,7 +235,7 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
     # If there are any open sections when we're done
     if open_sections:
         # Then we need to complain
-        raise SyntaxError('Unexpected EOF\n'
-                          'the tag "{0}" was never closed\n'
-                          'was opened at line {1}'
-                          .format(open_sections[-1], _LAST_TAG_LINE))
+        raise ChevronError('Unexpected EOF\n'
+                           'the tag "{0}" was never closed\n'
+                           'was opened at line {1}'
+                           .format(open_sections[-1], _LAST_TAG_LINE))
