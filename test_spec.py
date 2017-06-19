@@ -61,8 +61,10 @@ class ExpandedCoverage(unittest.TestCase):
             'template': '{{# section }} end of file'
         }
 
+        self.assertRaises(chevron.ChevronError, chevron.render, **test1)
+        self.assertRaises(chevron.ChevronError, chevron.render, **test2)
+        # check SyntaxError still catches ChevronError:
         self.assertRaises(SyntaxError, chevron.render, **test1)
-        self.assertRaises(SyntaxError, chevron.render, **test2)
 
     def test_bad_set_delimiter_tag(self):
         args = {
