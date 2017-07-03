@@ -79,7 +79,11 @@ def parse_tag(template, l_del, r_del):
     }
 
     # Get the tag
-    tag, template = template.split(r_del, 1)
+    try:
+        tag, template = template.split(r_del, 1)
+    except ValueError:
+        raise ChevronError('unclosed tag '
+                           'at line {0}'.format(_CURRENT_LINE))
 
     # Find the type meaning of the first character
     tag_type = tag_types.get(tag[0], 'variable')

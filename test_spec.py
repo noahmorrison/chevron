@@ -194,6 +194,14 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_closing_tag_only(self):
+        args = {
+            'template': '{{ foo } bar',
+            'data': {'foo': 'xx'}
+        }
+
+        self.assertRaises(chevron.ChevronError, chevron.render, **args)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":
