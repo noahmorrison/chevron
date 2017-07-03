@@ -208,15 +208,12 @@ class ExpandedCoverage(unittest.TestCase):
             'data': {'foo': 'xx'}
         }
 
-        self.assertRaisesRegexp(chevron.ChevronError,
-                                'unclosed tag at line 3',
-                                chevron.render, **args)
-        self.assertRaisesRegexp(chevron.ChevronError,
-                                'unclosed tag at line 3',
-                                chevron.render, **args)
-        self.assertRaisesRegexp(chevron.ChevronError,
-                                'unclosed tag at line 3',
-                                chevron.render, **args)
+        # self.assertRaisesRegex does not exist in python2.6
+        for _ in range(10):
+            try:
+                chevron.render(**args)
+            except chevron.ChevronError as error:
+                self.assertEqual(error.msg, 'unclosed tag at line 3')
 
 
 # Run unit tests from command line
