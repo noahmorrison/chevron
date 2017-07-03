@@ -1,11 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import unittest
 import os
 import json
 
 import chevron
+
+import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
 SPECS_PATH = os.path.join('spec', 'specs')
 SPECS = [path for path in os.listdir(SPECS_PATH) if path.endswith('.json')]
