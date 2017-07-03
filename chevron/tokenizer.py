@@ -160,6 +160,9 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
     the literal itself.
     """
 
+    global _CURRENT_LINE, _LAST_TAG_LINE
+    _CURRENT_LINE = 1
+    _LAST_TAG_LINE = None
     # If the template is a file-like object then read it
     try:
         template = template.read()

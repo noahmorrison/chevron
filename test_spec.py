@@ -202,6 +202,22 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertRaises(chevron.ChevronError, chevron.render, **args)
 
+    def test_current_line_rest(self):
+        args = {
+            'template': 'first line\nsecond line\n {{ foo } bar',
+            'data': {'foo': 'xx'}
+        }
+
+        self.assertRaisesRegexp(chevron.ChevronError,
+                                'unclosed tag at line 3',
+                                chevron.render, **args)
+        self.assertRaisesRegexp(chevron.ChevronError,
+                                'unclosed tag at line 3',
+                                chevron.render, **args)
+        self.assertRaisesRegexp(chevron.ChevronError,
+                                'unclosed tag at line 3',
+                                chevron.render, **args)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":
