@@ -215,6 +215,19 @@ class ExpandedCoverage(unittest.TestCase):
             except chevron.ChevronError as error:
                 self.assertEqual(error.msg, 'unclosed tag at line 3')
 
+    def test_no_opening_tag(self):
+        args = {
+            'template': 'oops, no opening tag {{/ closing_tag }}',
+            'data': {'foo': 'xx'}
+        }
+
+        try:
+            chevron.render(**args)
+        except chevron.ChevronError as error:
+            self.assertEqual(error.msg, 'Trying to close tag "closing_tag"\n'
+                                        'Looks like it was not opened.\n'
+                                        'line 2')
+
 
 # Run unit tests from command line
 if __name__ == "__main__":

@@ -208,7 +208,13 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
         elif tag_type == 'end':
             # Then check to see if the last opened section
             # is the same as us
-            last_section = open_sections.pop()
+            try:
+                last_section = open_sections.pop()
+            except IndexError:
+                raise ChevronError('Trying to close tag "{0}"\n'
+                                   'Looks like it was not opened.\n'
+                                   'line {1}'
+                                   .format(tag_key, _CURRENT_LINE + 1))
             if tag_key != last_section:
                 # Otherwise we need to complain
                 raise ChevronError('Trying to close tag "{0}"\n'
