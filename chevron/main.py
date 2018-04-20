@@ -32,8 +32,8 @@ def cli_main():
     import argparse
     import os
 
-    def is_file(arg):
-        if not os.path.isfile(arg):
+    def is_file_or_pipe(arg):
+        if not os.path.exists(arg) or os.path.isdir(arg):
             parser.error('The file {0} does not exist!'.format(arg))
         else:
             return arg
@@ -50,11 +50,11 @@ def cli_main():
                         version='0.8.4')
 
     parser.add_argument('template', help='The mustache file',
-                        type=is_file)
+                        type=is_file_or_pipe)
 
     parser.add_argument('-d', '--data', dest='data',
                         help='The json data file',
-                        type=is_file, default={})
+                        type=is_file_or_pipe, default={})
 
     parser.add_argument('-p', '--path', dest='partials_path',
                         help='The directory where your partials reside',
