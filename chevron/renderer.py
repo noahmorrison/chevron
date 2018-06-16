@@ -203,7 +203,10 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a no html escape tag
         elif tag == 'no escape':
             # Just lookup the key and add it
-            output += str(_get_key(key, scopes))
+            thing = _get_key(key, scopes)
+            if type(thing) != unicode:
+                thing = unicode(str(thing), 'utf-8')
+            output += thing
 
         # If we're a section tag
         elif tag == 'section':
