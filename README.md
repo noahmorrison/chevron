@@ -26,7 +26,7 @@ If you find a test that chevron does not pass, please [report it.](https://githu
 
 ### chevron is Python 2 and 3 compatible ###
 
-Python 2.6, 2.7, 3.2, 3.3, and 3.4 are all tested by travis.
+Python 2.6, 2.7, 3.2, 3.3, 3.4, 3.5, and 3.6 are all tested by travis.
 
 
 
