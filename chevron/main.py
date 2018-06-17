@@ -7,8 +7,10 @@ except ImportError:  # not tested
 
 try:
     from .renderer import render
+    from .metadata import version
 except (ValueError, SystemError):  # python 2
     from renderer import render
+    from metadata import version
 
 
 def main(template, data={}, **kwargs):
@@ -47,7 +49,7 @@ def cli_main():
     parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument('-v', '--version', action='version',
-                        version='0.8.4')
+                        version=version)
 
     parser.add_argument('template', help='The mustache file',
                         type=is_file_or_pipe)

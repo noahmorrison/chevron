@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import chevron.metadata
+
 try:
     from setuptools import setup
 except ImportError:
@@ -13,8 +15,9 @@ except (ImportError, RuntimeError):
     readme = ''
 
 
+
 setup(name='chevron',
-      version='0.12.0',
+      version=chevron.metadata.version,
       license='MIT',
 
       description='Mustache templating language renderer',
