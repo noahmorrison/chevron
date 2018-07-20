@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import sys
+
 try:
     import yaml as json
 except ImportError:  # not tested
@@ -78,7 +80,8 @@ def cli_main():
     args = vars(parser.parse_args())
 
     try:
-        print(main(**args))
+        sys.stdout.write(main(**args))
+        sys.stdout.flush()
     except SyntaxError as e:
         print('Chevron: syntax error')
         print('    ' + '\n    '.join(e.args[0].split('\n')))
