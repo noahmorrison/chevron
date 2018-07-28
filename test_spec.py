@@ -6,9 +6,14 @@ import os
 import json
 
 import chevron
+from textwrap import dedent
 
 SPECS_PATH = os.path.join('spec', 'specs')
-SPECS = [path for path in os.listdir(SPECS_PATH) if path.endswith('.json')]
+if os.path.exists(SPECS_PATH):
+    SPECS = [path for path in os.listdir(SPECS_PATH) if path.endswith('.json')]
+else:
+    SPECS = []
+
 STACHE = chevron.render
 
 
@@ -227,6 +232,81 @@ class ExpandedCoverage(unittest.TestCase):
             self.assertEqual(error.msg, 'Trying to close tag "closing_tag"\n'
                                         'Looks like it was not opened.\n'
                                         'line 2')
+
+    # https://github.com/noahmorrison/chevron/issues/17
+    def test_callable_1(self):
+        args_passed = {}
+        def first(content, render):
+            args_passed['content'] = content
+            args_passed['render'] = render
+
+            return "not implemented"
+
+        args = {
+            'template': '{{{postcode}}} {{#first}} {{{city}}} || {{{town}}} || {{{village}}} || {{{state}}} {{/first}}',
+            'data': {
+                "postcode": "1234",
+                "city": "Mustache City",
+                "state": "Nowhere",
+                "first": first,
+            }
+
+        }
+
+        result = chevron.render(**args)
+        expected = '1234 not implemented'
+        template_content = " {{& city }} || {{& town }} || {{& village }} || {{& state }} "
+
+        self.assertEqual(result, expected)
+        self.assertEqual(args_passed['content'], template_content)
+
+    def test_callable_2(self):
+        args_passed = {}
+        def first(content, render):
+            result = render(content)
+            result = [ x.strip() for x in result.split(" || ") if x.strip() ]
+            return result[0]
+
+        args = {
+            'template': '{{{postcode}}} {{#first}} {{{city}}} || {{{town}}} || {{{village}}} || {{{state}}} {{/first}}',
+            'data': {
+                "postcode": "1234",
+                "town": "Mustache Town",
+                "state": "Nowhere",
+                "first": first,
+            }
+        }
+
+        result = chevron.render(**args)
+        expected = '1234 Mustache Town'
+        template_content = " {{& city }} || {{& town }} || {{& village }} || {{& state }} "
+
+        self.assertEqual(result, expected)
+
+    def test_callable_3(self):
+        '''Test generating some data within the function
+        '''
+        args_passed = {}
+        def first(content, render):
+            result = render(content, {'city': "Injected City"})
+            result = [ x.strip() for x in result.split(" || ") if x.strip() ]
+            return result[0]
+
+        args = {
+            'template': '{{{postcode}}} {{#first}} {{{city}}} || {{{town}}} || {{{village}}} || {{{state}}} {{/first}}',
+            'data': {
+                "postcode": "1234",
+                "town": "Mustache Town",
+                "state": "Nowhere",
+                "first": first,
+            }
+        }
+
+        result = chevron.render(**args)
+        expected = '1234 Injected City'
+        template_content = " {{& city }} || {{& town }} || {{& village }} || {{& state }} "
+
+        self.assertEqual(result, expected)
 
 
 # Run unit tests from command line

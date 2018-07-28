@@ -92,7 +92,6 @@ def _get_partial(name, partials_dict, partials_path, partials_ext):
             # Alright I give up on you
             return ''
 
-
 #
 # The main rendering function
 #
@@ -148,6 +147,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
     A string containing the rendered template.
     """
+
+    function = type(render)
 
     # If the template is a list
     if type(template) is list:
@@ -213,8 +214,51 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             # Get the sections scope
             scope = _get_key(key, scopes)
 
+            # If the scope is a callable (as described in https://mustache.github.io/mustache.5.html)
+            if type(scope) is function:
+
+                # Gather up all the tags inside the section and generate a template text
+                tags = []
+
+                text = unicode('', 'utf-8')
+                for tag in tokens:
+                    if tag == ('end', key):
+                        break
+
+                    tag_type, tag_key = tag
+                    if tag_type == 'literal':
+                        text += tag_key
+                    elif tag_type == 'no escape':
+                        text += "%s& %s %s" % (def_ldel, tag_key, def_rdel)
+                    else:
+                        text += "%s%s %s%s" % (def_ldel,{
+                                'commment': '!',
+                                'section': '#',
+                                'inverted section': '^',
+                                'end': '/',
+                                'partial': '>',
+                                'set delimiter': '=',
+                                'no escape': '&'
+                            }[tag_type], tag_key, def_rdel)
+
+                    tags.append(tag)
+
+                rend = scope(text, lambda template, data=None: render(template,
+                        data={},
+                        partials_path=partials_path,
+                        partials_ext=partials_ext,
+                        partials_dict=partials_dict,
+                        padding=padding,
+                        def_ldel=def_ldel, def_rdel=def_rdel,
+                        scopes=data and [data]+scopes or scopes))
+
+                if python3:
+                    output += rend
+                else:  # python 2
+                    output += rend.decode('utf-8')
+
             # If the scope is a list
-            if type(scope) is list:
+            elif type(scope) is list:
                 # Then we need to do some looping
 
                 # Gather up all the tags inside the section
