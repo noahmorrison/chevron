@@ -214,12 +214,11 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             # Get the sections scope
             scope = _get_key(key, scopes)
 
-            # If the scope is a callable (as described in https://mustache.github.io/mustache.5.html)
+            # If the scope is a callable (as described in
+            # https://mustache.github.io/mustache.5.html)
             if type(scope) is function:
 
-                # Gather up all the tags inside the section and generate a template text
-                tags = []
-
+                # Generate template text from tags
                 text = unicode('', 'utf-8')
                 for tag in tokens:
                     if tag == ('end', key):
@@ -231,7 +230,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                     elif tag_type == 'no escape':
                         text += "%s& %s %s" % (def_ldel, tag_key, def_rdel)
                     else:
-                        text += "%s%s %s%s" % (def_ldel,{
+                        text += "%s%s %s%s" % (def_ldel, {
                                 'commment': '!',
                                 'section': '#',
                                 'inverted section': '^',
@@ -241,16 +240,14 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                                 'no escape': '&'
                             }[tag_type], tag_key, def_rdel)
 
-                    tags.append(tag)
-
                 rend = scope(text, lambda template, data=None: render(template,
-                        data={},
-                        partials_path=partials_path,
-                        partials_ext=partials_ext,
-                        partials_dict=partials_dict,
-                        padding=padding,
-                        def_ldel=def_ldel, def_rdel=def_rdel,
-                        scopes=data and [data]+scopes or scopes))
+                             data={},
+                             partials_path=partials_path,
+                             partials_ext=partials_ext,
+                             partials_dict=partials_dict,
+                             padding=padding,
+                             def_ldel=def_ldel, def_rdel=def_rdel,
+                             scopes=data and [data]+scopes or scopes))
 
                 if python3:
                     output += rend
