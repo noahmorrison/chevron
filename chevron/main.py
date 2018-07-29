@@ -14,13 +14,23 @@ except (ValueError, SystemError):  # python 2
     from renderer import render
     from metadata import version
 
+import frontmatter
 
-def main(template, data={}, **kwargs):
-    with open(template, 'r') as template_file:
+
+def main(template, data={}, stdin=sys.stdin, **kwargs):
+    if template == '-':
+        stream = stdin
+    else:
+        stream = open(template, 'r')
+
+    with stream as template_file:
+
         if data != {}:
             data_file = open(data, 'r')
             data = json.load(data_file)
             data_file.close()
+        else:
+            data, template_file = frontmatter.parse(template_file.read())
 
         args = {
             'template': template_file,
@@ -37,6 +47,8 @@ def cli_main():
     import os
 
     def is_file_or_pipe(arg):
+        if arg == "-":
+            return arg
         if not os.path.exists(arg) or os.path.isdir(arg):
             parser.error('The file {0} does not exist!'.format(arg))
         else:
@@ -53,12 +65,14 @@ def cli_main():
     parser.add_argument('-v', '--version', action='version',
                         version=version)
 
-    parser.add_argument('template', help='The mustache file',
+    parser.add_argument('template', help='The mustache file, "-" to read '
+                                         'from stdin',
                         type=is_file_or_pipe)
 
     parser.add_argument('-d', '--data', dest='data',
-                        help='The json data file',
-                        type=is_file_or_pipe, default={})
+                        help='The json data file, if you do not pass data, '
+                             'you can use frontmatter in template',
+                        default={})
 
     parser.add_argument('-p', '--path', dest='partials_path',
                         help='The directory where your partials reside',

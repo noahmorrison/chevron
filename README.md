@@ -40,12 +40,13 @@ usage: chevron [-h] [-v] [-d DATA] [-p PARTIALS_PATH] [-e PARTIALS_EXT]
                template
 
 positional arguments:
-  template              The mustache file
+  template              The mustache file, "-" to read from stdin
 
 optional arguments:
   -h, --help            show this help message and exit
   -v, --version         show program's version number and exit
-  -d DATA, --data DATA  The json data file
+  -d DATA, --data DATA  The json data file, if you do not pass data, you can
+                        use frontmatter in template
   -p PARTIALS_PATH, --path PARTIALS_PATH
                         The directory where your partials reside
   -e PARTIALS_EXT, --ext PARTIALS_EXT
