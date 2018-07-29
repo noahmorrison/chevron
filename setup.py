@@ -31,6 +31,9 @@ setup(name='chevron',
       entry_points={
           'console_scripts': ['chevron=chevron:cli_main']
       },
+      install_requires=[
+          'python-frontmatter'
+      ],
 
       classifiers=[
           'Development Status :: 4 - Beta',

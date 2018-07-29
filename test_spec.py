@@ -8,7 +8,10 @@ import json
 import chevron
 
 SPECS_PATH = os.path.join('spec', 'specs')
-SPECS = [path for path in os.listdir(SPECS_PATH) if path.endswith('.json')]
+if os.path.exists(SPECS_PATH):
+    SPECS = [path for path in os.listdir(SPECS_PATH) if path.endswith('.json')]
+else:
+    SPECS = []
 STACHE = chevron.render
 
 
@@ -227,6 +230,21 @@ class ExpandedCoverage(unittest.TestCase):
             self.assertEqual(error.msg, 'Trying to close tag "closing_tag"\n'
                                         'Looks like it was not opened.\n'
                                         'line 2')
+
+    def test_frontmatter(self):
+        from chevron.main import main
+        from io import StringIO
+        from textwrap import dedent
+
+        result = main("-", stdin=StringIO(unicode(dedent("""
+        ---
+        name: world
+        ---
+        hello {{ name }}!
+        """))))
+
+        self.assertEqual(result, "hello world!")
+
 
 
 # Run unit tests from command line
