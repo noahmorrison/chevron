@@ -95,6 +95,7 @@ def _get_partial(name, partials_dict, partials_path, partials_ext):
 #
 # The main rendering function
 #
+g_token_cache = {}
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding=0, def_ldel='{{', def_rdel='}}',
@@ -156,8 +157,11 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # But it does need to be a generator
         tokens = (token for token in template)
     else:
-        # Otherwise make a generator
-        tokens = tokenize(template, def_ldel, def_rdel)
+        if template in g_token_cache:
+            tokens = (token for token in g_token_cache[template])
+        else:
+            # Otherwise make a generator
+            tokens = tokenize(template, def_ldel, def_rdel)
 
     output = unicode('', 'utf-8')
 
@@ -220,10 +224,12 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
                 # Generate template text from tags
                 text = unicode('', 'utf-8')
+                tags = []
                 for tag in tokens:
                     if tag == ('end', key):
                         break
 
+                    tags.append(tag)
                     tag_type, tag_key = tag
                     if tag_type == 'literal':
                         text += tag_key
@@ -239,6 +245,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                                 'set delimiter': '=',
                                 'no escape': '&'
                             }[tag_type], tag_key, def_rdel)
+
+                g_token_cache[text] = tags
 
                 rend = scope(text, lambda template, data=None: render(template,
                              data={},
