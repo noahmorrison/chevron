@@ -98,10 +98,10 @@ def _get_partial(name, partials_dict, partials_path, partials_ext):
             # Alright I give up on you
             return ''
 
-
 #
 # The main rendering function
 #
+g_token_cache = {}
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding=0, def_ldel='{{', def_rdel='}}',
@@ -155,14 +155,19 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     A string containing the rendered template.
     """
 
+    function = type(render)
+
     # If the template is a list
     if type(template) is list:
         # Then we don't need to tokenize it
         # But it does need to be a generator
         tokens = (token for token in template)
     else:
-        # Otherwise make a generator
-        tokens = tokenize(template, def_ldel, def_rdel)
+        if template in g_token_cache:
+            tokens = (token for token in g_token_cache[template])
+        else:
+            # Otherwise make a generator
+            tokens = tokenize(template, def_ldel, def_rdel)
 
     output = unicode('', 'utf-8')
 
@@ -219,8 +224,52 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             # Get the sections scope
             scope = _get_key(key, scopes)
 
+            # If the scope is a callable (as described in
+            # https://mustache.github.io/mustache.5.html)
+            if type(scope) is function:
+
+                # Generate template text from tags
+                text = unicode('', 'utf-8')
+                tags = []
+                for tag in tokens:
+                    if tag == ('end', key):
+                        break
+
+                    tags.append(tag)
+                    tag_type, tag_key = tag
+                    if tag_type == 'literal':
+                        text += tag_key
+                    elif tag_type == 'no escape':
+                        text += "%s& %s %s" % (def_ldel, tag_key, def_rdel)
+                    else:
+                        text += "%s%s %s%s" % (def_ldel, {
+                                'commment': '!',
+                                'section': '#',
+                                'inverted section': '^',
+                                'end': '/',
+                                'partial': '>',
+                                'set delimiter': '=',
+                                'no escape': '&'
+                            }[tag_type], tag_key, def_rdel)
+
+                g_token_cache[text] = tags
+
+                rend = scope(text, lambda template, data=None: render(template,
+                             data={},
+                             partials_path=partials_path,
+                             partials_ext=partials_ext,
+                             partials_dict=partials_dict,
+                             padding=padding,
+                             def_ldel=def_ldel, def_rdel=def_rdel,
+                             scopes=data and [data]+scopes or scopes))
+
+                if python3:
+                    output += rend
+                else:  # python 2
+                    output += rend.decode('utf-8')
+
             # If the scope is a list
-            if type(scope) is list:
+            elif type(scope) is list:
                 # Then we need to do some looping
 
                 # Gather up all the tags inside the section
