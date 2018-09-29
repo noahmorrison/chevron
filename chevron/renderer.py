@@ -273,10 +273,16 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 # Then we need to do some looping
 
                 # Gather up all the tags inside the section
+                # (And don't be tricked by nested end tags with the same key)
+                # TODO: This feels like it still has edge cases, no?
                 tags = []
+                tags_with_same_key = 0
                 for tag in tokens:
+                    if tag == ('section', key):
+                        tags_with_same_key += 1
                     if tag == ('end', key):
-                        break
+                        tags_with_same_key -= 1
+                        if tags_with_same_key < 0: break
                     tags.append(tag)
 
                 # For every item in the scope

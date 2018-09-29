@@ -310,6 +310,18 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    # https://github.com/noahmorrison/chevron/issues/39
+    def test_nest_loops_with_same_key(self):
+        args = {
+            'template': 'A{{#x}}B{{#x}}{{.}}{{/x}}C{{/x}}D',
+            'data': {'x': ['z', 'x']}
+        }
+
+        result = chevron.render(**args)
+        expected = 'ABzxCBzxCD'
+
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":
