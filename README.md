@@ -77,9 +77,9 @@ Python usage with unpacking
 import chevron
 
 args = {
-  template: 'Hello, {{ mustache }}!',
+  'template': 'Hello, {{ mustache }}!',
 
-  data: {
+  'data': {
     'mustache': 'World'
   }
 }
@@ -92,9 +92,9 @@ chevron supports partials (via dictionaries)
 import chevron
 
 args = {
-    template: 'Hello, {{> thing }}!',
+    'template': 'Hello, {{> thing }}!',
 
-    partials_dict: {
+    'partials_dict': {
         'thing': 'World'
     }
 }
@@ -107,13 +107,13 @@ chevron supports partials (via the filesystem)
 import chevron
 
 args = {
-    template: 'Hello, {{> thing }}!',
+    'template': 'Hello, {{> thing }}!',
 
     # defaults to .
-    partials_path: 'partials/',
+    'partials_path': 'partials/',
 
     # defaults to mustache
-    partials_ext: 'ms',
+    'partials_ext': 'ms',
 }
 
 # ./partials/thing.ms will be read and rendered
@@ -134,9 +134,9 @@ def inject_x(text, render):
     return render(text, {'x': 'data'})
 
 args = {
-    template: 'Hello, {{# first}} {{x}} || {{y}} || {{z}} {{/ first}}!  {{# inject_x}} {{x}} {{/ inject_x}}',
+    'template': 'Hello, {{# first}} {{x}} || {{y}} || {{z}} {{/ first}}!  {{# inject_x}} {{x}} {{/ inject_x}}',
 
-    data: {
+    'data': {
         'y': 'foo',
         'z': 'bar',
         'first': first,
