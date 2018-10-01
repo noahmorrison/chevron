@@ -15,7 +15,6 @@ except (ImportError, RuntimeError):
     readme = ''
 
 
-
 setup(name='chevron',
       version=chevron.metadata.version,
       license='MIT',
