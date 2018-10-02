@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import io
+
 try:
     from .tokenizer import tokenize
 except (ValueError, SystemError):  # python 2
@@ -91,7 +93,7 @@ def _get_partial(name, partials_dict, partials_path, partials_ext):
         try:
             # Maybe it's in the file system
             path = partials_path + '/' + name + '.' + partials_ext
-            with open(path, 'r') as partial:
+            with io.open(path, 'r', encoding='utf-8') as partial:
                 return partial.read()
 
         except IOError:

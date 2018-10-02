@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import io
 import sys
 
 try:
@@ -16,9 +17,9 @@ except (ValueError, SystemError):  # python 2
 
 
 def main(template, data={}, **kwargs):
-    with open(template, 'r') as template_file:
+    with io.open(template, 'r', encoding='utf-8') as template_file:
         if data != {}:
-            data_file = open(data, 'r')
+            data_file = io.open(data, 'r', encoding='utf-8')
             data = json.load(data_file)
             data_file.close()
 
