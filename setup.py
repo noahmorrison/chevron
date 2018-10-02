@@ -17,6 +17,7 @@ setup(name='chevron',
 
       description='Mustache templating language renderer',
       long_description=readme,
+      long_description_content_type='text/markdown',
 
       author='noah morrison',
       author_email='noah@morrison.ph',
