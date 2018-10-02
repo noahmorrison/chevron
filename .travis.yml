@@ -16,6 +16,7 @@ matrix:
   - python: 3.6
     env:
     - TOXENV=flake8
+    - PUBLISH="true"
     install:
     - pip install coveralls
     - pip install tox-travis
@@ -23,9 +24,6 @@ matrix:
     - tox
     after_success:
     - coveralls
-  exclude:
-  - python: 3.6
-    env: []
 
 script:
 - python ./test_spec.py
@@ -42,7 +40,7 @@ deploy:
       tags: true
       repo: noahmorrison/chevron
       branch: master
-      condition: $TRAVIS_PYTHON_VERSION = "3.6"
+      condition: $PUBLISH = "true"
   - provider: pypi
     server: https://test.pypi.org/legacy/
     user: noahmorrison
@@ -54,4 +52,4 @@ deploy:
       tags: true
       repo: noahmorrison/chevron
       all_branches: true
-      condition: $TRAVIS_PYTHON_VERSION = "3.6"
+      condition: $PUBLISH = "true"
