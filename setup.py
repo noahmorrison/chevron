@@ -7,14 +7,9 @@ try:
 except ImportError:
     from distutils.core import setup
 
-try:
-    import pypandoc
-    readme = pypandoc.convert('README.md', 'rest')
-except (ImportError, RuntimeError):
-    print('\n\n!!!\npypandoc not loaded\n!!!\n')
-    readme = ''
 
-
+with open('README.md') as f:
+    readme = f.read()
 
 setup(name='chevron',
       version=chevron.metadata.version,
