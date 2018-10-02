@@ -98,10 +98,12 @@ def _get_partial(name, partials_dict, partials_path, partials_ext):
             # Alright I give up on you
             return ''
 
+
 #
 # The main rendering function
 #
 g_token_cache = {}
+
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding=0, def_ldel='{{', def_rdel='}}',
@@ -282,7 +284,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                         tags_with_same_key += 1
                     if tag == ('end', key):
                         tags_with_same_key -= 1
-                        if tags_with_same_key < 0: break
+                        if tags_with_same_key < 0:
+                            break
                     tags.append(tag)
 
                 # For every item in the scope
