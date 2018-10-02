@@ -29,6 +29,7 @@ script:
 
 deploy:
   - provider: pypi
+    server: https://upload.pypi.org/legacy
     user: noahmorrison
     password:
       secure: GK+PXWWCczHMQAptgAA6umma0kP+fPsCktHzDnpb4Pa7RZBjxjS1mbRtwSfMm8gWcRYkqjO0la/t3TUP3qjfa+x5JmIwy2YTveBKmSjTxLAb9n7fCWZEGu9GWgGvfsmg2Hhi6NYUp9U7ggtoBXQ4AHgmnPyDCL2TQK32PKj5soM=
@@ -39,7 +40,7 @@ deploy:
       branch: master
       condition: $TRAVIS_PYTHON_VERSION = "3.5"
   - provider: pypi
-    server: https://testpypi.python.org/pypi
+    server: https://test.pypi.org/legacy
     user: noahmorrison
     password:
       secure: GK+PXWWCczHMQAptgAA6umma0kP+fPsCktHzDnpb4Pa7RZBjxjS1mbRtwSfMm8gWcRYkqjO0la/t3TUP3qjfa+x5JmIwy2YTveBKmSjTxLAb9n7fCWZEGu9GWgGvfsmg2Hhi6NYUp9U7ggtoBXQ4AHgmnPyDCL2TQK32PKj5soM=
