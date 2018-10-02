@@ -36,6 +36,7 @@ deploy:
     skip_upload_docs: true
     on:
       tags: true
+      repo: noahmorrison/chevron
       branch: master
       condition: $TRAVIS_PYTHON_VERSION = "3.5"
   - provider: pypi
@@ -46,5 +47,6 @@ deploy:
     distributions: sdist bdist_wheel
     skip_upload_docs: true
     on:
+      repo: noahmorrison/chevron
       all_branches: true
       condition: $TRAVIS_PYTHON_VERSION = "3.5"
