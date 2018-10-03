@@ -251,7 +251,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                                 'end': '/',
                                 'partial': '>',
                                 'set delimiter': '=',
-                                'no escape': '&'
+                                'no escape': '&',
+                                'variable': ''
                             }[tag_type], tag_key, def_rdel)
 
                 g_token_cache[text] = tags
