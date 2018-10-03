@@ -92,7 +92,8 @@ def _get_partial(name, partials_dict, partials_path, partials_ext):
         # Nope...
         try:
             # Maybe it's in the file system
-            path = partials_path + '/' + name + ('.' + partials_ext if partials_ext else '')
+            path_ext = ('.' + partials_ext if partials_ext else '')
+            path = partials_path + '/' + name + path_ext
             with io.open(path, 'r', encoding='utf-8') as partial:
                 return partial.read()
 
