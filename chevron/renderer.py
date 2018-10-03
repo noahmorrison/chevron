@@ -3,6 +3,10 @@
 import io
 
 try:
+    from collections.abc import Sequence, Iterator, Callable
+except ImportError:  # python 2
+    from collections import Sequence, Iterator, Callable
+try:
     from .tokenizer import tokenize
 except (ValueError, SystemError):  # python 2
     from tokenizer import tokenize
@@ -11,12 +15,16 @@ except (ValueError, SystemError):  # python 2
 import sys
 if sys.version_info[0] == 3:
     python3 = True
+    unicode_type = str
+    string_type = str
 
     def unicode(x, y):
         return x
 
 else:  # python 2
     python3 = False
+    unicode_type = unicode
+    string_type = basestring
 
 
 #
@@ -160,10 +168,9 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     A string containing the rendered template.
     """
 
-    function = type(render)
-
-    # If the template is a list
-    if type(template) is list:
+    # If the template is a seqeuence but not derived from a string
+    if isinstance(template, Sequence) and \
+            not isinstance(template, string_type):
         # Then we don't need to tokenize it
         # But it does need to be a generator
         tokens = (token for token in template)
@@ -199,7 +206,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a literal tag
         elif tag == 'literal':
             # Add padding to the key and add it to the output
-            if type(key) != unicode:
+            if not isinstance(key, unicode_type):
                 key = unicode(key, 'utf-8')
             output += key.replace('\n', '\n' + (' ' * padding))
 
@@ -212,7 +219,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 # (inverted tags do this)
                 # then get the un-coerced object (next in the stack)
                 thing = scopes[1]
-            if type(thing) != unicode:
+            if not isinstance(thing, unicode_type):
                 thing = unicode(str(thing), 'utf-8')
             output += _html_escape(thing)
 
@@ -220,7 +227,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         elif tag == 'no escape':
             # Just lookup the key and add it
             thing = _get_key(key, scopes)
-            if type(thing) != unicode:
+            if not isinstance(thing, unicode_type):
                 thing = unicode(str(thing), 'utf-8')
             output += thing
 
@@ -231,7 +238,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
             # If the scope is a callable (as described in
             # https://mustache.github.io/mustache.5.html)
-            if type(scope) is function:
+            if isinstance(scope, Callable):
 
                 # Generate template text from tags
                 text = unicode('', 'utf-8')
@@ -274,8 +281,10 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 else:  # python 2
                     output += rend.decode('utf-8')
 
-            # If the scope is a list
-            elif type(scope) is list:
+            # If the scope is a sequence, an iterator or generator but not
+            # derived from a string
+            elif isinstance(scope, (Sequence, Iterator)) and \
+                    not isinstance(scope, string_type):
                 # Then we need to do some looping
 
                 # Gather up all the tags inside the section
