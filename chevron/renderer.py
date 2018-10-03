@@ -24,7 +24,7 @@ if sys.version_info[0] == 3:
 else:  # python 2
     python3 = False
     unicode_type = unicode
-    string_type = basestring
+    string_type = basestring  # noqa: F821 (This is defined in python2)
 
 
 #
