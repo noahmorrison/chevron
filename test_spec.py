@@ -4,8 +4,16 @@
 import unittest
 import os
 import json
+import io
 
 import chevron
+
+import sys
+if sys.version_info[0] == 3:
+    python3 = True
+else:  # python 2
+    python3 = False
+
 
 SPECS_PATH = os.path.join('spec', 'specs')
 if os.path.exists(SPECS_PATH):
@@ -35,7 +43,7 @@ def _test_case_from_path(json_path):
                                                                  obj['desc'])
             return test_case
 
-        with open(json_path, 'r') as f:
+        with io.open(json_path, 'r', encoding='utf-8') as f:
             yaml = json.load(f)
 
         # Generates a unit test for each test object
@@ -124,8 +132,10 @@ class ExpandedCoverage(unittest.TestCase):
         result = chevron.main('tests/test.mustache', 'tests/data.json',
                               partials_path='tests')
 
-        with open('tests/test.rendered', 'r') as f:
+        with io.open('tests/test.rendered', 'r', encoding='utf-8') as f:
             expected = f.read()
+            if not python3:
+                expected = expected.encode('utf-8')
 
         self.assertEqual(result, expected)
 
