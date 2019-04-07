@@ -194,7 +194,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're an end tag
         if tag == 'end':
             # Pop out of the latest scope
-            scopes = scopes[1:]
+            del scopes[0]
 
         # If the current scope is falsy and not the only scope
         elif not current_scope and len(scopes) != 1:

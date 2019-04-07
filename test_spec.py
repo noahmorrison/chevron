@@ -117,6 +117,17 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_missing_key_partial(self):
+        args = {
+            'template': 'before, {{> with_missing_key }}, after',
+            'partials_dict': {'with_missing_key': '{{#missing_key}}bloop{{/missing_key}}'}
+        }
+
+        result = chevron.render(**args)
+        expected = 'before, , after'
+
+        self.assertEqual(result, expected)
+
     def test_listed_data(self):
         args = {
             'template': '{{# . }}({{ . }}){{/ . }}',
