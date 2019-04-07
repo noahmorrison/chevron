@@ -343,6 +343,20 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    # https://github.com/noahmorrison/chevron/issues/49
+    def test_partial_indentation(self):
+        args = {
+            'template': '\t{{> count }}',
+            'partials_dict': {
+                'count': '\tone\n\ttwo'
+            }
+        }
+
+        result = chevron.render(**args)
+        expected = '\t\tone\n\t\ttwo'
+
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":

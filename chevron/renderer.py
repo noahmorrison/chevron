@@ -117,7 +117,7 @@ g_token_cache = {}
 
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
-           partials_dict={}, padding=0, def_ldel='{{', def_rdel='}}',
+           partials_dict={}, padding='', def_ldel='{{', def_rdel='}}',
            scopes=None):
     """Render a mustache template.
 
@@ -208,7 +208,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             # Add padding to the key and add it to the output
             if not isinstance(key, unicode_type):
                 key = unicode(key, 'utf-8')
-            output += key.replace('\n', '\n' + (' ' * padding))
+            output += key.replace('\n', '\n' + padding)
 
         # If we're a variable tag
         elif tag == 'variable':
@@ -332,11 +332,11 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             partial = _get_partial(key, partials_dict,
                                    partials_path, partials_ext)
 
-            # Find how much to pad the partial
+            # Find what to pad the partial with
             left = output.split('\n')[-1]
             part_padding = padding
             if left.isspace():
-                part_padding += left.count(' ')
+                part_padding += left
 
             # Render the partial
             part_out = render(template=partial, partials_path=partials_path,
@@ -348,7 +348,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             # If the partial was indented
             if left.isspace():
                 # then remove the spaces from the end
-                part_out = part_out.rstrip(' ')
+                part_out = part_out.rstrip(' \t')
 
             # Add the partials output to the ouput
             if python3:
