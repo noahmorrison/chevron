@@ -357,6 +357,21 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    # https://github.com/noahmorrison/chevron/issues/52
+    def test_indexed(self):
+        args = {
+            'template': 'count {{count.0}}, {{count.1}}, '
+                        '{{count.100}}, {{nope.0}}',
+            'data': {
+                "count": [5,4,3,2,1],
+            }
+        }
+
+        result = chevron.render(**args)
+        expected = 'count 5, 4, , '
+
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":
