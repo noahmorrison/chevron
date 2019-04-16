@@ -68,13 +68,14 @@ def _get_key(key, scopes):
                     try:
                         # Try the dictionary (Complex types)
                         scope = scope.__dict__[child]
-                    except:
+                    except (TypeError, AttributeError):
                         # Try as a list
                         scope = scope[int(child)]
 
             # Return an empty string if falsy, with two exceptions
             # 0 should return 0, and False should return False
-            if scope is 0:
+            # While using is for this check is undefined it works and is fast
+            if scope is 0:  # noqa: F632
                 return 0
             if scope is False:
                 return False

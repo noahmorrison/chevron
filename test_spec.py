@@ -120,7 +120,9 @@ class ExpandedCoverage(unittest.TestCase):
     def test_missing_key_partial(self):
         args = {
             'template': 'before, {{> with_missing_key }}, after',
-            'partials_dict': {'with_missing_key': '{{#missing_key}}bloop{{/missing_key}}'}
+            'partials_dict': {
+                'with_missing_key': '{{#missing_key}}bloop{{/missing_key}}',
+            },
         }
 
         result = chevron.render(**args)
@@ -363,7 +365,7 @@ class ExpandedCoverage(unittest.TestCase):
             'template': 'count {{count.0}}, {{count.1}}, '
                         '{{count.100}}, {{nope.0}}',
             'data': {
-                "count": [5,4,3,2,1],
+                "count": [5, 4, 3, 2, 1],
             }
         }
 
