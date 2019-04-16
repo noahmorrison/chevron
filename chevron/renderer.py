@@ -86,7 +86,7 @@ def _get_key(key, scopes):
                     return scope
             except AttributeError:
                 return scope or ''
-        except (AttributeError, KeyError, IndexError):
+        except (AttributeError, KeyError, IndexError, ValueError):
             # We couldn't find the key in the current scope
             # We'll try again on the next pass
             pass
