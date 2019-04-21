@@ -1,5 +1,8 @@
 *.py[co]
 
+# Code coverage
+coverage.xml
+
 # Jython
 *.class
 

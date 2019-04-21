@@ -333,6 +333,67 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_callable_4(self):
+        '''Test render of partial inside lambda
+        '''
+
+        def function(content, render):
+            return render(content)
+
+        args = {
+            'template': '{{#function}}{{>partial}}{{!comment}}{{/function}}',
+            'partials_dict': {
+                'partial': 'partial content',
+            },
+            'data': {
+                'function': function,
+            }
+        }
+
+        result = chevron.render(**args)
+        expected = 'partial content'
+
+        self.assertEqual(result, expected)
+
+    # https://github.com/noahmorrison/chevron/issues/35
+    def test_custom_falsy(self):
+        class CustomData(dict):
+            class LowercaseBool:
+                _CHEVRON_return_scope_when_falsy = True
+
+                def __init__(self, value):
+                    self.value = value
+
+                def __bool__(self):
+                    return self.value
+                __nonzero__ = __bool__
+
+                def __str__(self):
+                    if self.value:
+                        return 'true'
+                    return 'false'
+
+            def __getitem__(self, key):
+                item = dict.__getitem__(self, key)
+                if isinstance(item, dict):
+                    return CustomData(item)
+                if isinstance(item, bool):
+                    return self.LowercaseBool(item)
+                return item
+
+        args = {
+            'data': CustomData({
+                'truthy': True,
+                'falsy': False,
+            }),
+            'template': '{{ truthy }} {{ falsy }}',
+        }
+
+        result = chevron.render(**args)
+        expected = 'true false'
+
+        self.assertEqual(result, expected)
+
     # https://github.com/noahmorrison/chevron/issues/39
     def test_nest_loops_with_same_key(self):
         args = {

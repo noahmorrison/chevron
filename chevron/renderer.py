@@ -211,7 +211,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a literal tag
         elif tag == 'literal':
             # Add padding to the key and add it to the output
-            if not isinstance(key, unicode_type):
+            if not isinstance(key, unicode_type):  # python 2
                 key = unicode(key, 'utf-8')
             output += key.replace('\n', '\n' + padding)
 
