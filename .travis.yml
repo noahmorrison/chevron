@@ -17,7 +17,6 @@ matrix:
     - TOXENV=flake8
   - python: 3.6
     env:
-    - TOXENV=flake8
     - PUBLISH="true"
     install:
     - pip install coveralls
