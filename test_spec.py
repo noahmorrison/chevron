@@ -382,13 +382,12 @@ class ExpandedCoverage(unittest.TestCase):
                 return item
 
         args = {
-            'data': CustomData({ 
+            'data': CustomData({
                 'truthy': True,
                 'falsy': False,
             }),
             'template': '{{ truthy }} {{ falsy }}',
         }
-
 
         result = chevron.render(**args)
         expected = 'true false'
