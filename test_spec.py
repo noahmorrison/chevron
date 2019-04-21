@@ -333,6 +333,28 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_callable_4(self):
+        '''Test render of partial inside lambda
+        '''
+
+        def function(content, render):
+            return render(content)
+
+        args = {
+            'template': '{{#function}}{{>partial}}{{!comment}}{{/function}}',
+            'partials_dict': {
+                'partial': 'partial content',
+            },
+            'data': {
+                'function': function,
+            }
+        }
+
+        result = chevron.render(**args)
+        expected = 'partial content'
+
+        self.assertEqual(result, expected)
+
     # https://github.com/noahmorrison/chevron/issues/35
     def test_custom_falsy(self):
         class CustomData(dict):
