@@ -338,7 +338,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                                    partials_path, partials_ext)
 
             # Find what to pad the partial with
-            left = output.split('\n')[-1]
+            left = output.rpartition('\n')[2]
             part_padding = padding
             if left.isspace():
                 part_padding += left
