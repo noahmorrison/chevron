@@ -116,6 +116,60 @@ def _get_partial(name, partials_dict, partials_path, partials_ext):
 
 
 #
+# Render class
+#
+class RenderFunction(object):
+    """Callable section render function."""
+
+    __slots__ = ('_kwargs', '_scopes')
+
+    def __init__(self, scopes, **kwargs):
+        """Initialize with scope and render kwargs.
+
+        Arguments:
+
+        scopes        -- The list of scopes that get_key will look through
+
+        **kwargs      -- Keyword arguments forwarded to render
+        """
+        self._scopes = scopes
+        self._kwargs = kwargs
+
+    def get(self, key):
+        """Get a key from the current scope.
+
+        Arguments:
+
+        key           -- Key to look in current data scope
+
+        Returns:
+
+        Value from data scope, or empty string if not found.
+        """
+        return _get_key(key, self._scopes)
+
+    def __call__(self, template, data=None):
+        """Render template on current scope.
+
+        Arguments:
+
+        template      -- A file-like object or a string containing the
+                         template
+
+        data          -- A python dictionary with your data scope
+
+        Returns:
+
+        A string containing the rendered template.
+        """
+        return render(
+            template,
+            scopes=data and [data] + self._scopes or self._scopes,
+            **self._kwargs
+            )
+
+
+#
 # The main rendering function
 #
 g_token_cache = {}
@@ -272,14 +326,14 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
                 g_token_cache[text] = tags
 
-                rend = scope(text, lambda template, data=None: render(template,
+                rend = scope(text, RenderFunction(
                              data={},
                              partials_path=partials_path,
                              partials_ext=partials_ext,
                              partials_dict=partials_dict,
                              padding=padding,
                              def_ldel=def_ldel, def_rdel=def_rdel,
-                             scopes=data and [data]+scopes or scopes))
+                             scopes=scopes))
 
                 if python3:
                     output += rend

@@ -355,6 +355,34 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_callable_5(self):
+        '''Test render with function accessing current context
+        '''
+
+        def keys(content, render):
+            result = []
+            mapping = render.get('.')
+            if mapping:
+                for key in sorted(mapping):
+                    result.append(render(content, key))
+            return ''.join(result)
+
+        args = {
+            'template': '{{#dct}}{{#keys}}{{.}}{{/keys}}{{/dct}}',
+            'data': {
+                'keys': keys,
+                'dct': {
+                    'ka': 'va',
+                    'kb': 'kb',
+                }
+            }
+        }
+
+        result = chevron.render(**args)
+        expected = 'kakb'
+
+        self.assertEqual(result, expected)
+
     # https://github.com/noahmorrison/chevron/issues/35
     def test_custom_falsy(self):
         class CustomData(dict):
