@@ -74,8 +74,7 @@ def _get_key(key, scopes):
 
             # Return an empty string if falsy, with two exceptions
             # 0 should return 0, and False should return False
-            # While using is for this check is undefined it works and is fast
-            if scope is 0:  # noqa: F632
+            if scope == 0:
                 return 0
             if scope is False:
                 return False
