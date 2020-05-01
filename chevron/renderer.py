@@ -74,10 +74,8 @@ def _get_key(key, scopes):
 
             # Return an empty string if falsy, with two exceptions
             # 0 should return 0, and False should return False
-            if scope == 0:
-                return 0
-            if scope is False:
-                return False
+            if scope in (0, False):
+                return scope
 
             try:
                 # This allows for custom falsy data types
