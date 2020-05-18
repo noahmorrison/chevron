@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import io
+from os import linesep
 
 try:
     from collections.abc import Sequence, Iterator, Callable
@@ -95,7 +96,7 @@ def _get_key(key, scopes, warn=False):
     # We couldn't find the key in any of the scopes
 
     if warn:
-        sys.stderr.write("Could not find key '%s'" % key)
+        sys.stderr.write("Could not find key '%s'%s" % (key, linesep))
 
     return ''
 
