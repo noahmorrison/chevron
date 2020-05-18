@@ -79,7 +79,7 @@ def cli_main():
                         default='}}')
 
     parser.add_argument('-w', '--warn', dest='warn',
-                        help='Warn on undefined template substitutions',
+                        help='Print a warning to stderr for each undefined template key encountered',
                         action='store_true')
 
 
