@@ -78,6 +78,11 @@ def cli_main():
                         help='The default right delimiter, "}}" by default.',
                         default='}}')
 
+    parser.add_argument('-w', '--warn', dest='warn',
+                        help='Warn on undefined template substitutions',
+                        action='store_true')
+
+
     args = vars(parser.parse_args())
 
     try:
