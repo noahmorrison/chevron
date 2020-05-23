@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import collections
 import unittest
 import os
 import json
@@ -432,6 +433,18 @@ class ExpandedCoverage(unittest.TestCase):
 
         result = chevron.render(**args)
         expected = 'count 5, 4, , '
+
+        self.assertEqual(result, expected)
+
+    def test_namedtuple_data(self):
+        NT = collections.namedtuple('NT', ['foo', 'bar'])
+        args = {
+            'template': '{{foo}} {{bar}}',
+            'data': NT('hello', 'world')
+        }
+
+        result = chevron.render(**args)
+        expected = 'hello world'
 
         self.assertEqual(result, expected)
 
