@@ -123,7 +123,7 @@ g_token_cache = {}
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding='', def_ldel='{{', def_rdel='}}',
-           scopes=None):
+           scopes=None, escape_html=True):
     """Render a mustache template.
 
     Renders a mustache template with a data scope and partial capability.
@@ -226,7 +226,10 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 thing = scopes[1]
             if not isinstance(thing, unicode_type):
                 thing = unicode(str(thing), 'utf-8')
-            output += _html_escape(thing)
+            if escape_html:
+                output += _html_escape(thing)
+            else:
+                output += thing
 
         # If we're a no html escape tag
         elif tag == 'no escape':

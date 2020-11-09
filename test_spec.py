@@ -435,6 +435,24 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_no_html_escaping(self):
+        args = {
+            'template': '#|{{quote}}{{bt}}{{lt}}',
+            'data': {
+                "quote": '"',
+                "bt": ">",
+                "lt": "<",
+            },
+        }
+
+        result = chevron.render(**args, escape_html=False)
+        expected = '#|"><'
+        self.assertEqual(result, expected)
+
+        result = chevron.render(**args)
+        expected = '#|&quot;&gt;&lt;'
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":
