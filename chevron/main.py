@@ -33,8 +33,8 @@ def main(template, data={}, **kwargs):
 def _load_data(file, yaml_loader):
     try:
         import yaml
-        loader = getattr(yaml, yaml_loader)
-        return yaml.load(file, Loader=loader)
+        loader = getattr(yaml, yaml_loader)  # not tested
+        return yaml.load(file, Loader=loader)  # not tested
     except ImportError:
         import json
         return json.load(file)
