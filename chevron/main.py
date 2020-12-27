@@ -4,11 +4,6 @@ import io
 import sys
 
 try:
-    import yaml as json
-except ImportError:  # not tested
-    import json
-
-try:
     from .renderer import render
     from .metadata import version
 except (ValueError, SystemError):  # python 2
@@ -18,9 +13,12 @@ except (ValueError, SystemError):  # python 2
 
 def main(template, data={}, **kwargs):
     with io.open(template, 'r', encoding='utf-8') as template_file:
+
+        yaml_loader = kwargs.pop('yaml_loader', None) or 'FullLoader'
+
         if data != {}:
             data_file = io.open(data, 'r', encoding='utf-8')
-            data = json.load(data_file)
+            data = _load_data(data_file, yaml_loader)
             data_file.close()
 
         args = {
@@ -30,6 +28,16 @@ def main(template, data={}, **kwargs):
 
         args.update(kwargs)
         return render(**args)
+
+
+def _load_data(file, yaml_loader):
+    try:
+        import yaml
+        loader = getattr(yaml, yaml_loader)
+        return yaml.load(file, Loader=loader)
+    except ImportError:
+        import json
+        return json.load(file)
 
 
 def cli_main():
@@ -60,6 +68,9 @@ def cli_main():
     parser.add_argument('-d', '--data', dest='data',
                         help='The json data file',
                         type=is_file_or_pipe, default={})
+
+    parser.add_argument('-y', '--yaml-loader', dest='yaml_loader',
+                        help=argparse.SUPPRESS)
 
     parser.add_argument('-p', '--path', dest='partials_path',
                         help='The directory where your partials reside',
