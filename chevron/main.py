@@ -13,7 +13,7 @@ except (ValueError, SystemError):  # python 2
 
 def main(template, data=None, **kwargs):
     with io.open(template, 'r', encoding='utf-8') as template_file:
-        yaml_loader = kwargs.pop('yaml_loader', None) or 'FullLoader'
+        yaml_loader = kwargs.pop('yaml_loader', None) or 'SafeLoader'
 
         if data is not None:
             with io.open(data, 'r', encoding='utf-8') as data_file:
