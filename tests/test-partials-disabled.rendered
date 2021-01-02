@@ -1,0 +1,131 @@
+
+variable test
+===
+test
+===
+test
+===
+
+comment test
+===
+===
+===
+
+html escape test (triple brackets)
+===
+< > & "
+===
+< > & "
+===
+
+html escape test (ampersand)
+===
+< > & "
+===
+< > & "
+===
+
+html escape test (normal)
+===
+&lt; &gt; &amp; &quot;
+===
+&lt; &gt; &amp; &quot;
+===
+
+section test (truthy)
+===
+true
+===
+true
+===
+
+section test (falsy)
+===
+===
+===
+
+section test (list)
+===
+number: 1
+name: one
+---
+number: 2
+name: two
+---
+number: 3
+name: three
+---
+===
+number: 1
+name: one
+---
+number: 2
+name: two
+---
+number: 3
+name: three
+---
+===
+
+section test (scope)
+===
+test
+new test
+===
+test
+new test
+===
+
+inverted section test (truthy)
+===
+===
+===
+
+inverted section test (falsy)
+===
+false
+===
+false
+===
+
+partial test
+===
+===
+this is a partial
+===
+
+delimiter test
+===
+test
+test
+===
+test
+test
+===
+
+unicode test (basic)
+===
+(╯°□°）╯︵ ┻━┻
+===
+(╯°□°）╯︵ ┻━┻
+===
+
+unicode test (variable)
+===
+(╯°□°）╯︵ ┻━┻
+===
+(╯°□°）╯︵ ┻━┻
+===
+
+unicode test (partial)
+===
+===
+(╯°□°）╯︵ ┻━┻
+===
+
+unicode test (no-escape)
+===
+<a>(╯°□°）╯︵ ┻━┻
+===
+<a>(╯°□°）╯︵ ┻━┻
+===

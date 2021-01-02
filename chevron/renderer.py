@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import io
-from os import linesep
+from os import linesep, path
 
 try:
     from collections.abc import Sequence, Iterator, Callable
@@ -103,12 +103,15 @@ def _get_partial(name, partials_dict, partials_path, partials_ext):
         # Maybe the partial is in the dictionary
         return partials_dict[name]
     except KeyError:
+        # Don't try loading from the file system if the partials_path is None or empty
+        if partials_path is None or partials_path == '': return ''
+
         # Nope...
         try:
             # Maybe it's in the file system
             path_ext = ('.' + partials_ext if partials_ext else '')
-            path = partials_path + '/' + name + path_ext
-            with io.open(path, 'r', encoding='utf-8') as partial:
+            partial_path = path.join(partials_path, name + path_ext)
+            with io.open(partial_path, 'r', encoding='utf-8') as partial:
                 return partial.read()
 
         except IOError:
@@ -147,6 +150,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     data          -- A python dictionary with your data scope
 
     partials_path -- The path to where your partials are stored
+                     If set to None, then partials won't be loaded from the file system
                      (defaults to '.')
 
     partials_ext  -- The extension that you want the parser to look for

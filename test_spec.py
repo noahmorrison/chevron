@@ -482,6 +482,23 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_disabled_partials(self):
+        os.chdir('tests')
+        resultNone = chevron.main('test.mustache', 'data.json',
+                              partials_path=None)
+
+        resultEmpty = chevron.main('test.mustache', 'data.json',
+                               partials_path='')
+
+        with io.open('test-partials-disabled.rendered', 'r', encoding='utf-8') as f:
+            expected = f.read()
+            if not python3:
+                expected = expected.encode('utf-8')
+
+        self.assertEqual(resultNone, expected)
+        self.assertEqual(resultEmpty, expected)
+        os.chdir('..')
+
 
 # Run unit tests from command line
 if __name__ == "__main__":
