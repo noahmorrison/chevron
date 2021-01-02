@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import collections
 import unittest
 import os
 import json
@@ -432,6 +433,36 @@ class ExpandedCoverage(unittest.TestCase):
 
         result = chevron.render(**args)
         expected = 'count 5, 4, , '
+
+        self.assertEqual(result, expected)
+
+    def test_iterator_scope_indentation(self):
+        args = {
+            'data': {
+                'thing': ['foo', 'bar', 'baz'],
+            },
+            'template': '{{> count }}',
+            'partials_dict': {
+                'count': '    {{> iter_scope }}',
+                'iter_scope': 'foobar\n{{#thing}}\n {{.}}\n{{/thing}}'
+            }
+        }
+
+        result = chevron.render(**args)
+        expected = '    foobar\n     foo\n     bar\n     baz\n'
+
+        self.assertEqual(result, expected)
+
+    # https://github.com/noahmorrison/chevron/pull/73
+    def test_namedtuple_data(self):
+        NT = collections.namedtuple('NT', ['foo', 'bar'])
+        args = {
+            'template': '{{foo}} {{bar}}',
+            'data': NT('hello', 'world')
+        }
+
+        result = chevron.render(**args)
+        expected = 'hello world'
 
         self.assertEqual(result, expected)
 

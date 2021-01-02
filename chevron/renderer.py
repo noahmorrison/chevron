@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import io
+from os import linesep
 
 try:
     from collections.abc import Sequence, Iterator, Callable
@@ -47,7 +48,7 @@ def _html_escape(string):
     return string
 
 
-def _get_key(key, scopes):
+def _get_key(key, scopes, warn=False):
     """Get a key from the current scope"""
 
     # If the key is a dot
@@ -66,19 +67,21 @@ def _get_key(key, scopes):
                     scope = scope[child]
                 except (TypeError, AttributeError):
                     try:
-                        # Try the dictionary (Complex types)
-                        scope = scope.__dict__[child]
+                        # Try namedtuple (which does not have __dict__ in
+                        # Python 3: https://bugs.python.org/issue24931)
+                        scope = scope._asdict()[child]
                     except (TypeError, AttributeError):
-                        # Try as a list
-                        scope = scope[int(child)]
+                        try:
+                            # Try the dictionary (Complex types)
+                            scope = scope.__dict__[child]
+                        except (TypeError, AttributeError):
+                            # Try as a list
+                            scope = scope[int(child)]
 
             # Return an empty string if falsy, with two exceptions
             # 0 should return 0, and False should return False
-            # While using is for this check is undefined it works and is fast
-            if scope is 0:  # noqa: F632
-                return 0
-            if scope is False:
-                return False
+            if scope in (0, False):
+                return scope
 
             try:
                 # This allows for custom falsy data types
@@ -93,6 +96,10 @@ def _get_key(key, scopes):
             pass
 
     # We couldn't find the key in any of the scopes
+
+    if warn:
+        sys.stderr.write("Could not find key '%s'%s" % (key, linesep))
+
     return ''
 
 
@@ -123,7 +130,7 @@ g_token_cache = {}
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding='', def_ldel='{{', def_rdel='}}',
-           scopes=None):
+           scopes=None, warn=False):
     """Render a mustache template.
 
     Renders a mustache template with a data scope and partial capability.
@@ -166,6 +173,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                      ("}}" by default, as in spec compliant mustache)
 
     scopes        -- The list of scopes that get_key will look through
+
+    warn -- Issue a warning to stderr when a template substitution isn't found in the data
 
 
     Returns:
@@ -218,7 +227,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a variable tag
         elif tag == 'variable':
             # Add the html escaped key to the output
-            thing = _get_key(key, scopes)
+            thing = _get_key(key, scopes, warn=warn)
             if thing is True and key == '.':
                 # if we've coerced into a boolean by accident
                 # (inverted tags do this)
@@ -231,7 +240,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a no html escape tag
         elif tag == 'no escape':
             # Just lookup the key and add it
-            thing = _get_key(key, scopes)
+            thing = _get_key(key, scopes, warn=warn)
             if not isinstance(thing, unicode_type):
                 thing = unicode(str(thing), 'utf-8')
             output += thing
@@ -239,7 +248,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a section tag
         elif tag == 'section':
             # Get the sections scope
-            scope = _get_key(key, scopes)
+            scope = _get_key(key, scopes, warn=warn)
 
             # If the scope is a callable (as described in
             # https://mustache.github.io/mustache.5.html)
@@ -311,6 +320,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                     # Append it as the most recent scope and render
                     new_scope = [thing] + scopes
                     rend = render(template=tags, scopes=new_scope,
+                                  padding=padding,
                                   partials_path=partials_path,
                                   partials_ext=partials_ext,
                                   partials_dict=partials_dict,
@@ -328,7 +338,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're an inverted section
         elif tag == 'inverted section':
             # Add the flipped scope to the scopes
-            scope = _get_key(key, scopes)
+            scope = _get_key(key, scopes, warn=warn)
             scopes.insert(0, not scope)
 
         # If we're a partial
@@ -338,7 +348,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                                    partials_path, partials_ext)
 
             # Find what to pad the partial with
-            left = output.split('\n')[-1]
+            left = output.rpartition('\n')[2]
             part_padding = padding
             if left.isspace():
                 part_padding += left

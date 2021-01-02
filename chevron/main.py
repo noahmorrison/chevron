@@ -11,15 +11,15 @@ except (ValueError, SystemError):  # python 2
     from metadata import version
 
 
-def main(template, data={}, **kwargs):
+def main(template, data=None, **kwargs):
     with io.open(template, 'r', encoding='utf-8') as template_file:
-
         yaml_loader = kwargs.pop('yaml_loader', None) or 'FullLoader'
 
-        if data != {}:
-            data_file = io.open(data, 'r', encoding='utf-8')
-            data = _load_data(data_file, yaml_loader)
-            data_file.close()
+        if data is not None:
+            with io.open(data, 'r', encoding='utf-8') as data_file:
+                data = _load_data(data_file, yaml_loader)
+        else:
+            data = {}
 
         args = {
             'template': template_file,
@@ -89,6 +89,11 @@ def cli_main():
                         help='The default right delimiter, "}}" by default.',
                         default='}}')
 
+    parser.add_argument('-w', '--warn', dest='warn',
+                        help='Print a warning to stderr for each undefined template key encountered',
+                        action='store_true')
+
+
     args = vars(parser.parse_args())
 
     try:
@@ -96,8 +101,7 @@ def cli_main():
         sys.stdout.flush()
     except SyntaxError as e:
         print('Chevron: syntax error')
-        print('    ' + '\n    '.join(e.args[0].split('\n')))
-        exit(1)
+        sys.exit('    ' + '\n    '.join(e.args[0].split('\n')))
 
 
 if __name__ == '__main__':
