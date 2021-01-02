@@ -435,6 +435,23 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_iterator_scope_indentation(self):
+        args = {
+            'data': {
+                'thing': ['foo', 'bar', 'baz'],
+            },
+            'template': '{{> count }}',
+            'partials_dict': {
+                'count': '    {{> iter_scope }}',
+                'iter_scope': 'foobar\n{{#thing}}\n {{.}}\n{{/thing}}'
+            }
+        }
+
+        result = chevron.render(**args)
+        expected = '    foobar\n     foo\n     bar\n     baz\n'
+
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":

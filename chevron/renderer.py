@@ -311,6 +311,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                     # Append it as the most recent scope and render
                     new_scope = [thing] + scopes
                     rend = render(template=tags, scopes=new_scope,
+                                  padding=padding,
                                   partials_path=partials_path,
                                   partials_ext=partials_ext,
                                   partials_dict=partials_dict,
