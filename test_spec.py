@@ -466,6 +466,22 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_get_key_not_in_dunder_dict_returns_attribute(self):
+        class C:
+            foo = "bar"
+
+        instance = C()
+        self.assertTrue("foo" not in instance.__dict__)
+
+        args = {
+            'template': '{{foo}}',
+            'data': instance
+        }
+        result = chevron.render(**args)
+        expected = 'bar'
+
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":
