@@ -67,11 +67,16 @@ def _get_key(key, scopes, warn=False):
                     scope = scope[child]
                 except (TypeError, AttributeError):
                     try:
-                        # Try the dictionary (Complex types)
-                        scope = scope.__dict__[child]
+                        # Try namedtuple (which does not have __dict__ in
+                        # Python 3: https://bugs.python.org/issue24931)
+                        scope = scope._asdict()[child]
                     except (TypeError, AttributeError):
-                        # Try as a list
-                        scope = scope[int(child)]
+                        try:
+                            # Try the dictionary (Complex types)
+                            scope = scope.__dict__[child]
+                        except (TypeError, AttributeError):
+                            # Try as a list
+                            scope = scope[int(child)]
 
             # Return an empty string if falsy, with two exceptions
             # 0 should return 0, and False should return False
