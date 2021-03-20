@@ -292,7 +292,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                              padding=padding,
                              def_ldel=def_ldel, def_rdel=def_rdel,
                              scopes=data and [data]+scopes or scopes,
-                             warn=warn))
+                             warn=warn, keep=keep))
 
                 if python3:
                     output += rend
@@ -329,7 +329,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                                   partials_ext=partials_ext,
                                   partials_dict=partials_dict,
                                   def_ldel=def_ldel, def_rdel=def_rdel,
-                                  warn=warn)
+                                  warn=warn, keep=keep)
 
                     if python3:
                         output += rend
@@ -364,7 +364,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                               partials_dict=partials_dict,
                               def_ldel=def_ldel, def_rdel=def_rdel,
                               padding=part_padding, scopes=scopes,
-                              warn=warn)
+                              warn=warn, keep=keep)
 
             # If the partial was indented
             if left.isspace():
