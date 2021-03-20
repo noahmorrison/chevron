@@ -9,8 +9,10 @@ except ImportError:  # python 2
     from collections import Sequence, Iterator, Callable
 try:
     from .tokenizer import tokenize
+    from .error import ChevronKeyError
 except (ValueError, SystemError):  # python 2
     from tokenizer import tokenize
+    from .error import ChevronKeyError
 
 
 import sys
@@ -92,7 +94,11 @@ def _get_key(key, scopes, warn=False):
     # We couldn't find the key in any of the scopes
 
     if warn:
-        sys.stderr.write("Could not find key '%s'%s" % (key, linesep))
+        warning = "Could not find key '%s'%s" % (key, linesep)
+        if isinstance(warn, Callable):
+            warn(ChevronKeyError(warning))
+        else:
+            sys.stderr.write(warning)
 
     return ''
 
@@ -172,7 +178,10 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
     scopes        -- The list of scopes that get_key will look through
 
-    warn -- Issue a warning to stderr when a template substitution isn't found in the data
+    warn          -- If True, issues a warning to stderr when a template
+                     substitution isn't found in the data.
+                     If warn is callable, a ChevronError is passed to the
+                     callable
 
 
     Returns:

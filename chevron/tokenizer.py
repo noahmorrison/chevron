@@ -2,9 +2,10 @@
 _CURRENT_LINE = 1
 _LAST_TAG_LINE = None
 
-
-class ChevronError(SyntaxError):
-    pass
+try:
+    from .error import ChevronError
+except (ValueError, SystemError):  # python 2
+    from .error import ChevronError
 
 #
 # Helper functions
