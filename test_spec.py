@@ -499,6 +499,59 @@ class ExpandedCoverage(unittest.TestCase):
         self.assertEqual(resultEmpty, expected)
         os.chdir('..')
 
+    # https://github.com/noahmorrison/chevron/pull/94
+    def test_keep(self):
+        args = {
+            'template': '{{ first }} {{ second }} {{ third }}',
+            'data': {
+                "first": "1st",
+                "third": "3rd",
+            },
+        }
+
+        result = chevron.render(**args)
+        expected = '1st  3rd'
+        self.assertEqual(result, expected)
+
+        args['keep'] = True
+
+        result = chevron.render(**args)
+        expected = '1st {{ second }} 3rd'
+        self.assertEqual(result, expected)
+
+        args['template'] = '{{first}} {{second}} {{third}}'
+        result = chevron.render(**args)
+        expected = '1st {{ second }} 3rd'
+        self.assertEqual(result, expected)
+
+        args['template'] = '{{   first    }} {{    second    }} {{    third   }}'
+        result = chevron.render(**args)
+        expected = '1st {{ second }} 3rd'
+        self.assertEqual(result, expected)
+
+    # https://github.com/noahmorrison/chevron/pull/94
+    def test_keep_from_partials(self):
+        args = {
+            'template': '{{ first }} {{> with_missing_key }} {{ third }}',
+            'data': {
+                "first": "1st",
+                "third": "3rd",
+            },
+            'partials_dict': {
+                'with_missing_key': '{{missing_key}}',
+            },
+        }
+
+        result = chevron.render(**args)
+        expected = '1st  3rd'
+        self.assertEqual(result, expected)
+
+        args['keep'] = True
+
+        result = chevron.render(**args)
+        expected = '1st {{ missing_key }} 3rd'
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":

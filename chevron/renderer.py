@@ -230,7 +230,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a variable tag
         elif tag == 'variable':
             # Add the html escaped key to the output
-            thing = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_ldel)
+            thing = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
             if thing is True and key == '.':
                 # if we've coerced into a boolean by accident
                 # (inverted tags do this)
@@ -243,7 +243,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a no html escape tag
         elif tag == 'no escape':
             # Just lookup the key and add it
-            thing = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_ldel)
+            thing = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
             if not isinstance(thing, unicode_type):
                 thing = unicode(str(thing), 'utf-8')
             output += thing
@@ -251,7 +251,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a section tag
         elif tag == 'section':
             # Get the sections scope
-            scope = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_ldel)
+            scope = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
 
             # If the scope is a callable (as described in
             # https://mustache.github.io/mustache.5.html)
@@ -343,7 +343,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're an inverted section
         elif tag == 'inverted section':
             # Add the flipped scope to the scopes
-            scope = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_ldel)
+            scope = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
             scopes.insert(0, not scope)
 
         # If we're a partial
