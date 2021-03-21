@@ -48,7 +48,7 @@ def _html_escape(string):
     return string
 
 
-def _get_key(key, scopes, warn=False):
+def _get_key(key, scopes, warn, keep, def_ldel, def_rdel):
     """Get a key from the current scope"""
 
     # If the key is a dot
@@ -94,6 +94,9 @@ def _get_key(key, scopes, warn=False):
     if warn:
         sys.stderr.write("Could not find key '%s'%s" % (key, linesep))
 
+    if keep:
+        return "%s %s %s" % (def_ldel, key, def_rdel)
+
     return ''
 
 
@@ -127,7 +130,7 @@ g_token_cache = {}
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding='', def_ldel='{{', def_rdel='}}',
-           scopes=None, warn=False):
+           scopes=None, warn=False, keep=False):
     """Render a mustache template.
 
     Renders a mustache template with a data scope and partial capability.
@@ -172,7 +175,9 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
     scopes        -- The list of scopes that get_key will look through
 
-    warn -- Issue a warning to stderr when a template substitution isn't found in the data
+    warn          -- Issue a warning to stderr when a template substitution isn't found in the data
+
+    keep          -- Keep unreplaced tags when a template substitution isn't found in the data
 
 
     Returns:
@@ -225,7 +230,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a variable tag
         elif tag == 'variable':
             # Add the html escaped key to the output
-            thing = _get_key(key, scopes, warn=warn)
+            thing = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
             if thing is True and key == '.':
                 # if we've coerced into a boolean by accident
                 # (inverted tags do this)
@@ -238,7 +243,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a no html escape tag
         elif tag == 'no escape':
             # Just lookup the key and add it
-            thing = _get_key(key, scopes, warn=warn)
+            thing = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
             if not isinstance(thing, unicode_type):
                 thing = unicode(str(thing), 'utf-8')
             output += thing
@@ -246,7 +251,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a section tag
         elif tag == 'section':
             # Get the sections scope
-            scope = _get_key(key, scopes, warn=warn)
+            scope = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
 
             # If the scope is a callable (as described in
             # https://mustache.github.io/mustache.5.html)
@@ -287,7 +292,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                              padding=padding,
                              def_ldel=def_ldel, def_rdel=def_rdel,
                              scopes=data and [data]+scopes or scopes,
-                             warn=warn))
+                             warn=warn, keep=keep))
 
                 if python3:
                     output += rend
@@ -324,7 +329,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                                   partials_ext=partials_ext,
                                   partials_dict=partials_dict,
                                   def_ldel=def_ldel, def_rdel=def_rdel,
-                                  warn=warn)
+                                  warn=warn, keep=keep)
 
                     if python3:
                         output += rend
@@ -338,7 +343,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're an inverted section
         elif tag == 'inverted section':
             # Add the flipped scope to the scopes
-            scope = _get_key(key, scopes, warn=warn)
+            scope = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
             scopes.insert(0, not scope)
 
         # If we're a partial
@@ -359,7 +364,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                               partials_dict=partials_dict,
                               def_ldel=def_ldel, def_rdel=def_rdel,
                               padding=part_padding, scopes=scopes,
-                              warn=warn)
+                              warn=warn, keep=keep)
 
             # If the partial was indented
             if left.isspace():
