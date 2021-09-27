@@ -466,6 +466,32 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    # Regression test for
+    # https://github.com/noahmorrison/chevron/issues/104
+    def test_string_method_names_in_sections_1(self):
+        args = {
+            'template': '{{#upper}}{{{.}}} == {{{upper}}}{{/upper}}',
+            'data': {'upper': 'foo'},
+        }
+
+        result = chevron.render(**args)
+        expected = 'foo == foo'
+        self.assertEqual(result, expected)
+
+    # Another regression test for
+    # https://github.com/noahmorrison/chevron/issues/104
+    def test_string_method_names_in_sections_2(self):
+        args = {
+            'template': (
+                '{{#a}}{{#b}}{{{b}}} '
+                '{{#upper}}{{{upper}}}{{/upper}}{{/b}}{{/a}}'
+            ),
+            'data': {'a': [{'upper': 'foo', 'b': 'x'}]},
+        }
+        result = chevron.render(**args)
+        expected = 'x foo'
+        self.assertEqual(result, expected)
+
     def test_get_key_not_in_dunder_dict_returns_attribute(self):
         class C:
             foo = "bar"

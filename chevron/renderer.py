@@ -48,6 +48,15 @@ def _html_escape(string):
     return string
 
 
+def _is_instance_of_namedtuple(obj):
+    """Tests if an object is a namedtuple"""
+    return (
+            isinstance(obj, tuple) and
+            hasattr(obj, '_asdict') and
+            hasattr(obj, '_fields')
+    )
+
+
 def _get_key(key, scopes, warn, keep, def_ldel, def_rdel):
     """Get a key from the current scope"""
 
@@ -61,16 +70,16 @@ def _get_key(key, scopes, warn, keep, def_ldel, def_rdel):
         try:
             # For every dot seperated key
             for child in key.split('.'):
-                # Move into the scope
-                try:
-                    # Try subscripting (Normal dictionaries)
+
+                # use different methods of access depending on the data structure
+                # passed:
+                if isinstance(scope, dict):
                     scope = scope[child]
-                except (TypeError, AttributeError):
-                    try:
-                        scope = getattr(scope, child)
-                    except (TypeError, AttributeError):
-                        # Try as a list
-                        scope = scope[int(child)]
+                elif hasattr(scope, "__dict__") or _is_instance_of_namedtuple(scope):
+                    scope = getattr(scope, child)
+                else:
+                    # Otherwise, try accessing as a list/tuple
+                    scope = scope[int(child)]
 
             # Return an empty string if falsy, with two exceptions
             # 0 should return 0, and False should return False
