@@ -130,7 +130,7 @@ g_token_cache = {}
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding='', def_ldel='{{', def_rdel='}}',
-           scopes=None, warn=False, keep=False):
+           scopes=None, warn=False, keep=False, escape=_html_escape):
     """Render a mustache template.
 
     Renders a mustache template with a data scope and partial capability.
@@ -178,6 +178,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     warn          -- Issue a warning to stderr when a template substitution isn't found in the data
 
     keep          -- Keep unreplaced tags when a template substitution isn't found in the data
+
+    escape        -- Escape entries before replacement (defaults to html escaping)
 
 
     Returns:
@@ -238,7 +240,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 thing = scopes[1]
             if not isinstance(thing, unicode_type):
                 thing = unicode(str(thing), 'utf-8')
-            output += _html_escape(thing)
+            output += escape(thing)
 
         # If we're a no html escape tag
         elif tag == 'no escape':
