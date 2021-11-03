@@ -552,6 +552,21 @@ class ExpandedCoverage(unittest.TestCase):
         expected = '1st {{ missing_key }} 3rd'
         self.assertEqual(result, expected)
 
+    def test_custom_serializer(self):
+        args = {
+            'template': '{{ value }}',
+            'data': {
+                'value': {
+                    'key': None,
+                },
+            },
+            'serializer': json.dumps,
+        }
+
+        result = chevron.render(**args)
+        expected = '{&quot;key&quot;: null}'
+        self.assertEqual(result, expected)
+
 
 # Run unit tests from command line
 if __name__ == "__main__":
