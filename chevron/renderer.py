@@ -130,7 +130,7 @@ g_token_cache = {}
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding='', def_ldel='{{', def_rdel='}}',
-           scopes=None, warn=False, keep=False):
+           scopes=None, warn=False, keep=False, serializer=str):
     """Render a mustache template.
 
     Renders a mustache template with a data scope and partial capability.
@@ -178,6 +178,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     warn          -- Issue a warning to stderr when a template substitution isn't found in the data
 
     keep          -- Keep unreplaced tags when a template substitution isn't found in the data
+
+    serializer    -- Python data serializer (str by default)
 
 
     Returns:
@@ -237,7 +239,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 # then get the un-coerced object (next in the stack)
                 thing = scopes[1]
             if not isinstance(thing, unicode_type):
-                thing = unicode(str(thing), 'utf-8')
+                thing = unicode(serializer(thing), 'utf-8')
             output += _html_escape(thing)
 
         # If we're a no html escape tag
@@ -245,7 +247,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             # Just lookup the key and add it
             thing = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
             if not isinstance(thing, unicode_type):
-                thing = unicode(str(thing), 'utf-8')
+                thing = unicode(serializer(thing), 'utf-8')
             output += thing
 
         # If we're a section tag
