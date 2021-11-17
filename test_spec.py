@@ -10,6 +10,9 @@ import io
 import chevron
 
 import sys
+
+from chevron.renderer import UndefinedError
+
 if sys.version_info[0] == 3:
     python3 = True
 else:  # python 2
@@ -551,6 +554,73 @@ class ExpandedCoverage(unittest.TestCase):
         result = chevron.render(**args)
         expected = '1st {{ missing_key }} 3rd'
         self.assertEqual(result, expected)
+
+    def test_error_bad_arguments(self):
+        args = {
+            'template': '{{ value }}',
+            'data': {'value': '123'},
+        }
+        for warn, keep, error in (
+            (True, True, False),
+            (True, False, True),
+            (False, True, True),
+            (True, True, True),
+        ):
+            with self.assertRaisesRegex(
+                    ValueError, 'Only one of warn, keep or error can be True',
+            ):
+                chevron.render(warn=warn, keep=keep, error=error, **args)
+
+    def test_error_no_undefined(self):
+        args = {
+            'template': '{{ value }}',
+            'data': {'value': '123'},
+            'error': True,
+        }
+        self.assertEqual(chevron.render(**args), '123')
+
+    def test_error_undefined_variable(self):
+        with self.assertRaisesRegex(
+            UndefinedError, 'Could not find key "some.value"',
+        ):
+            chevron.render(template='{{ some.value }}', data={}, error=True)
+
+    def test_error_undefined_no_escape(self):
+        with self.assertRaisesRegex(
+            UndefinedError, 'Could not find key "some.value"',
+        ):
+            chevron.render(template='{{{ some.value }}}', data={}, error=True)
+
+    def test_error_undefined_partial_dict(self):
+        with self.assertRaisesRegex(
+             UndefinedError, 'Could not find partial "some.value"',
+        ):
+            chevron.render(
+                template='{{> some.value }}', data={}, error=True,
+                partials_dict={'other': 'value'},
+            )
+
+    def test_error_undefined_partial_fs(self):
+        with self.assertRaisesRegex(
+             UndefinedError, 'Could not find partial "some.value"',
+        ):
+            chevron.render(
+                template='{{> some.value }}', data={}, error=True,
+                partials_dict={'other': 'value'},
+                partials_path='inexistent_path',
+            )
+
+    def test_error_undefined_section(self):
+        rendered = chevron.render(
+            template='{{#section}}123{{/section}}', data={}, error=True,
+        )
+        self.assertEqual(rendered, '')
+
+    def test_error_undefined_inverted_section(self):
+        rendered = chevron.render(
+            template='{{^section}}123{{/section}}', data={}, error=True,
+        )
+        self.assertEqual(rendered, '123')
 
 
 # Run unit tests from command line
