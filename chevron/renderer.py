@@ -28,6 +28,10 @@ else:  # python 2
     string_type = basestring  # noqa: F821 (This is defined in python2)
 
 
+class UndefinedError(ValueError):
+    pass
+
+
 #
 # Helper functions
 #
@@ -48,7 +52,7 @@ def _html_escape(string):
     return string
 
 
-def _get_key(key, scopes, warn, keep, def_ldel, def_rdel):
+def _get_key(key, scopes, warn, keep, error, def_ldel, def_rdel):
     """Get a key from the current scope"""
 
     # If the key is a dot
@@ -91,6 +95,9 @@ def _get_key(key, scopes, warn, keep, def_ldel, def_rdel):
 
     # We couldn't find the key in any of the scopes
 
+    if error:
+        raise UndefinedError('Could not find key "%s"' % key)
+
     if warn:
         sys.stderr.write("Could not find key '%s'%s" % (key, linesep))
 
@@ -100,14 +107,17 @@ def _get_key(key, scopes, warn, keep, def_ldel, def_rdel):
     return ''
 
 
-def _get_partial(name, partials_dict, partials_path, partials_ext):
+def _get_partial(name, partials_dict, partials_path, partials_ext, error):
     """Load a partial"""
     try:
         # Maybe the partial is in the dictionary
         return partials_dict[name]
     except KeyError:
         # Don't try loading from the file system if the partials_path is None or empty
-        if partials_path is None or partials_path == '': return ''
+        if partials_path is None or partials_path == '':
+            if error:
+                raise UndefinedError('Could not find partial "%s"' % name)
+            return ''
 
         # Nope...
         try:
@@ -119,6 +129,8 @@ def _get_partial(name, partials_dict, partials_path, partials_ext):
 
         except IOError:
             # Alright I give up on you
+            if error:
+                raise UndefinedError('Could not find partial "%s"' % name)
             return ''
 
 
@@ -130,7 +142,7 @@ g_token_cache = {}
 
 def render(template='', data={}, partials_path='.', partials_ext='mustache',
            partials_dict={}, padding='', def_ldel='{{', def_rdel='}}',
-           scopes=None, warn=False, keep=False):
+           scopes=None, warn=False, keep=False, error=False):
     """Render a mustache template.
 
     Renders a mustache template with a data scope and partial capability.
@@ -179,11 +191,15 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
     keep          -- Keep unreplaced tags when a template substitution isn't found in the data
 
+    error         -- Raise error when a template substituion isn't found (variable, no escape, partial)
 
     Returns:
 
     A string containing the rendered template.
     """
+
+    if warn + keep + error > 1:
+        raise ValueError('Only one of warn, keep or error can be True')
 
     # If the template is a seqeuence but not derived from a string
     if isinstance(template, Sequence) and \
@@ -230,7 +246,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a variable tag
         elif tag == 'variable':
             # Add the html escaped key to the output
-            thing = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
+            thing = _get_key(key, scopes, warn=warn, keep=keep, error=error, def_ldel=def_ldel, def_rdel=def_rdel)
             if thing is True and key == '.':
                 # if we've coerced into a boolean by accident
                 # (inverted tags do this)
@@ -243,7 +259,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a no html escape tag
         elif tag == 'no escape':
             # Just lookup the key and add it
-            thing = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
+            thing = _get_key(key, scopes, warn=warn, keep=keep, error=error, def_ldel=def_ldel, def_rdel=def_rdel)
             if not isinstance(thing, unicode_type):
                 thing = unicode(str(thing), 'utf-8')
             output += thing
@@ -251,7 +267,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a section tag
         elif tag == 'section':
             # Get the sections scope
-            scope = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
+            scope = _get_key(key, scopes, warn=warn, keep=keep, error=False, def_ldel=def_ldel, def_rdel=def_rdel)
 
             # If the scope is a callable (as described in
             # https://mustache.github.io/mustache.5.html)
@@ -292,7 +308,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                              padding=padding,
                              def_ldel=def_ldel, def_rdel=def_rdel,
                              scopes=data and [data]+scopes or scopes,
-                             warn=warn, keep=keep))
+                             warn=warn, keep=keep, error=error))
 
                 if python3:
                     output += rend
@@ -329,7 +345,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                                   partials_ext=partials_ext,
                                   partials_dict=partials_dict,
                                   def_ldel=def_ldel, def_rdel=def_rdel,
-                                  warn=warn, keep=keep)
+                                  warn=warn, keep=keep, error=error)
 
                     if python3:
                         output += rend
@@ -343,14 +359,14 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're an inverted section
         elif tag == 'inverted section':
             # Add the flipped scope to the scopes
-            scope = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
+            scope = _get_key(key, scopes, warn=warn, keep=keep, error=False, def_ldel=def_ldel, def_rdel=def_rdel)
             scopes.insert(0, not scope)
 
         # If we're a partial
         elif tag == 'partial':
             # Load the partial
             partial = _get_partial(key, partials_dict,
-                                   partials_path, partials_ext)
+                                   partials_path, partials_ext, error=error)
 
             # Find what to pad the partial with
             left = output.rpartition('\n')[2]
@@ -364,7 +380,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                               partials_dict=partials_dict,
                               def_ldel=def_ldel, def_rdel=def_rdel,
                               padding=part_padding, scopes=scopes,
-                              warn=warn, keep=keep)
+                              warn=warn, keep=keep, error=error)
 
             # If the partial was indented
             if left.isspace():
