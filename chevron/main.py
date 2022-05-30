@@ -93,6 +93,10 @@ def cli_main():
                         help='Print a warning to stderr for each undefined template key encountered',
                         action='store_true')
 
+    parser.add_argument('-k', '--keep', dest='keep',
+                        help='Keep undefined template keys unchanged',
+                        action='store_true')
+
 
     args = vars(parser.parse_args())
 

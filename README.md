@@ -36,7 +36,7 @@ USAGE
 Commandline usage: (if installed via pypi)
 ```
 usage: chevron [-h] [-v] [-d DATA] [-p PARTIALS_PATH] [-e PARTIALS_EXT]
-               [-l DEF_LDEL] [-r DEF_RDEL]
+               [-l DEF_LDEL] [-r DEF_RDEL] [-w] [-k]
                template
 
 positional arguments:
@@ -55,6 +55,9 @@ optional arguments:
                         The default left delimiter, "{{" by default.
   -r DEF_RDEL, --right-delimiter DEF_RDEL
                         The default right delimiter, "}}" by default.
+  -w, --warn            Print a warning to stderr for each undefined template
+                        key encountered
+  -k, --keep            Keep undefined template keys unchanged
 ```
 
 Python usage with strings
