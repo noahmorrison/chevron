@@ -67,7 +67,10 @@ def _get_key(key, scopes, warn, keep, def_ldel, def_rdel):
                     scope = scope[child]
                 except (TypeError, AttributeError):
                     try:
-                        scope = getattr(scope, child)
+                        provisional_scope = getattr(scope, child)
+                        if callable(provisional_scope):
+                            raise TypeError('skipping callable')
+                        scope = provisional_scope
                     except (TypeError, AttributeError):
                         # Try as a list
                         scope = scope[int(child)]
