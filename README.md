@@ -125,7 +125,7 @@ chevron supports lambdas
 import chevron
 
 def first(text, render):
-    # return only first occurance of items
+    # return only first occurrence of items
     result = render(text)
     return [ x.strip() for x in result.split(" || ") if x.strip() ][0]
 
