@@ -59,7 +59,7 @@ def _get_key(key, scopes, warn, keep, def_ldel, def_rdel):
     # Loop through the scopes
     for scope in scopes:
         try:
-            # For every dot seperated key
+            # For every dot separated key
             for child in key.split('.'):
                 # Move into the scope
                 try:
@@ -185,7 +185,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     A string containing the rendered template.
     """
 
-    # If the template is a seqeuence but not derived from a string
+    # If the template is a sequence but not derived from a string
     if isinstance(template, Sequence) and \
             not isinstance(template, string_type):
         # Then we don't need to tokenize it
@@ -371,7 +371,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 # then remove the spaces from the end
                 part_out = part_out.rstrip(' \t')
 
-            # Add the partials output to the ouput
+            # Add the partials output to the output
             if python3:
                 output += part_out
             else:  # python 2
