@@ -231,6 +231,9 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         elif tag == 'variable':
             # Add the html escaped key to the output
             thing = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
+            if isinstance(thing, Callable):
+                # if the variable is a callable function with no arguments (inspired by Mustache.js) get its value.
+                thing = thing()
             if thing is True and key == '.':
                 # if we've coerced into a boolean by accident
                 # (inverted tags do this)
