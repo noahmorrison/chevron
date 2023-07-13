@@ -355,6 +355,27 @@ class ExpandedCoverage(unittest.TestCase):
         expected = 'partial content'
 
         self.assertEqual(result, expected)
+    
+    def test_callable_variables(self):
+        '''Test callable variables
+        '''
+
+        def subject():
+            return 'World'
+
+        args = {
+            'template': '{{greeting}} {{subject}}{{emphasis}}',
+            'data': {
+                "greeting": 'Hello',
+                "subject": subject,
+                "emphasis": '!'
+            }
+        }
+
+        result = chevron.render(**args)
+        expected = 'Hello World!'
+
+        self.assertEqual(result, expected)
 
     # https://github.com/noahmorrison/chevron/issues/35
     def test_custom_falsy(self):
