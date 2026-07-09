@@ -348,6 +348,10 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
         # If we're a partial
         elif tag == 'partial':
+            if key.startswith("*"):
+                key=_get_key(key[1:], scopes, warn=warn)
+                if not isinstance(key, unicode_type):
+                    key = unicode(str(key), 'utf-8')
             # Load the partial
             partial = _get_partial(key, partials_dict,
                                    partials_path, partials_ext)
