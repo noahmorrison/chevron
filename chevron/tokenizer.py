@@ -86,7 +86,7 @@ def parse_tag(template, l_del, r_del):
                            'at line {0}'.format(_CURRENT_LINE))
 
     # Find the type meaning of the first character
-    tag_type = tag_types.get(tag[0], 'variable')
+    tag_type = tag_types.get(tag[:1], 'variable')
 
     # If the type is not a variable
     if tag_type != 'variable':

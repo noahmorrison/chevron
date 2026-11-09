@@ -65,6 +65,35 @@ for spec in SPECS:
 
 class ExpandedCoverage(unittest.TestCase):
 
+    def test_empty_variable_tokens(self):
+        for tag in ('{{}}', '{{ }}', '{{\t}}'):
+            self.assertEqual(list(chevron.tokenizer.tokenize(tag)),
+                             [('variable', '')])
+
+    def test_empty_variable_with_custom_delimiters(self):
+        self.assertEqual(
+            list(chevron.tokenizer.tokenize('<%%>', '<%', '%>')),
+            [('variable', '')])
+        self.assertEqual(
+            list(chevron.tokenizer.tokenize('{{=<% %>=}}<%%>')),
+            [('set delimiter', '<% %>'), ('variable', '')])
+
+    def test_empty_variable_rendering(self):
+        self.assertEqual(chevron.render('before{{}}after'), 'beforeafter')
+        self.assertEqual(chevron.render('  {{}}\nnext'), '  \nnext')
+        self.assertEqual(chevron.render('{{}}{{name}}{{}}', {'name': 'ok'}),
+                         'ok')
+        self.assertEqual(chevron.render('{{}}', {'': '<tag>'}), '&lt;tag&gt;')
+        self.assertEqual(chevron.render('{{}}', keep=True), '{{  }}')
+
+    def test_empty_variable_in_sections_and_partials(self):
+        self.assertEqual(chevron.render('{{#items}}[{{}}]{{/items}}',
+                                        {'items': [{'': 'one'}, {'': 'two'}]}),
+                         '[one][two]')
+        self.assertEqual(chevron.render('{{>empty}}', {'': 'value'},
+                                        partials_dict={'empty': '{{}}'}),
+                         'value')
+
     def test_unclosed_sections(self):
         test1 = {
             'template': '{{# section }} oops {{/ wrong_section }}'
