@@ -2,12 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import collections
+import copy
 import unittest
 import os
 import json
 import io
+import pickle
 
 import chevron
+from chevron.tokenizer import tokenize
 
 import sys
 if sys.version_info[0] == 3:
@@ -420,6 +423,89 @@ class ExpandedCoverage(unittest.TestCase):
         expected = '\t\tone\n\t\ttwo'
 
         self.assertEqual(result, expected)
+
+    def test_nested_partial_indentation(self):
+        result = chevron.render(
+            '  \\\n  {{>outer}}\n  /\n',
+            partials_dict={
+                'outer': '|\n{{>middle}}\n|\n',
+                'middle': '[\n{{>inner}}\n]\n',
+                'inner': '<\n>\n',
+            })
+        self.assertEqual(result, '  \\\n  |\n  [\n  <\n  >\n  ]\n  |\n  /\n')
+
+    def test_nested_partial_first_line_indentation(self):
+        result = chevron.render(
+            '  {{>outer}}\n',
+            partials_dict={
+                'outer': '\t{{>inner}}\nend\n',
+                'inner': 'one\ntwo\n',
+            })
+        self.assertEqual(result, '  \tone\n  \ttwo\n  end\n')
+
+    def test_nested_partial_mixed_indentation(self):
+        for padding in (' ', '\t', '\t  '):
+            result = chevron.render(
+                padding + '{{>outer}}\n',
+                partials_dict={
+                    'outer': 'before\n \t{{>inner}}\nafter\n',
+                    'inner': 'one\ntwo\n',
+                })
+            expected = (padding + 'before\n' +
+                        padding + ' \tone\n' +
+                        padding + ' \ttwo\n' +
+                        padding + 'after\n')
+            self.assertEqual(result, expected)
+
+    def test_nested_partial_without_trailing_newline(self):
+        result = chevron.render(
+            '  {{>outer}}\n',
+            partials_dict={
+                'outer': 'before\n {{>inner}}\nafter\n',
+                'inner': 'leaf',
+            })
+        self.assertEqual(result, '  before\n   leaf  after\n')
+
+    def test_consecutive_nested_partials(self):
+        result = chevron.render(
+            '  {{>outer}}\n',
+            partials_dict={
+                'outer': 'before\n{{>first}}\n{{>second}}\nafter\n',
+                'first': 'one\n',
+                'second': 'two\n',
+            })
+        self.assertEqual(result, '  before\n  one\n  two\n  after\n')
+
+    def test_empty_nested_partial(self):
+        for indentation in ('', ' \t'):
+            result = chevron.render(
+                '  {{>outer}}\n',
+                partials_dict={
+                    'outer': 'before\n' + indentation + '{{>inner}}\nafter\n',
+                    'inner': '',
+                })
+            self.assertEqual(result, '  before\n  after\n')
+
+    def test_inline_partial_after_multiline_variable(self):
+        result = chevron.render(
+            ' {{>outer}}\n', {'text': 'v\n'},
+            partials_dict={
+                'outer': '{{text}} {{>inner}}\nafter\n',
+                'inner': 'a\n',
+            })
+        self.assertEqual(result, ' v\n a\n\n after\n')
+
+    def test_pre_tokenized_nested_partial_indentation(self):
+        tokens = list(tokenize('  {{>outer}}\n'))
+        for template in (tokens, copy.deepcopy(tokens),
+                         pickle.loads(pickle.dumps(tokens))):
+            result = chevron.render(
+                template,
+                partials_dict={
+                    'outer': 'before\n{{>inner}}\nafter\n',
+                    'inner': 'one\ntwo\n',
+                })
+            self.assertEqual(result, '  before\n  one\n  two\n  after\n')
 
     # https://github.com/noahmorrison/chevron/issues/52
     def test_indexed(self):

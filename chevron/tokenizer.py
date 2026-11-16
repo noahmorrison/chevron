@@ -123,6 +123,15 @@ def parse_tag(template, l_del, r_del):
 # The main tokenizing function
 #
 
+class _PartialToken(tuple):
+    """Keep source indentation while retaining the two-item token interface."""
+
+    def __new__(cls, value, indentation=None):
+        token = tuple.__new__(cls, value)
+        token.indentation = indentation
+        return token
+
+
 def tokenize(template, def_ldel='{{', def_rdel='}}'):
     """Tokenize a mustache template
 
@@ -226,6 +235,11 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
         # Do the second check to see if we're a standalone
         is_standalone = r_sa_check(template, tag_type, is_standalone)
 
+        if tag_type == 'partial':
+            indentation = (literal.rpartition('\n')[2]
+                           if is_standalone else None)
+            tag = _PartialToken(tag, indentation)
+
         # Which if we are
         if is_standalone:
             # Remove the stuff before the newline
@@ -243,7 +257,7 @@ def tokenize(template, def_ldel='{{', def_rdel='}}'):
 
         # Ignore comments and set delimiters
         if tag_type not in ['comment', 'set delimiter?']:
-            yield (tag_type, tag_key)
+            yield tag
 
     # If there are any open sections when we're done
     if open_sections:

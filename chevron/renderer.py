@@ -204,7 +204,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         scopes = [data]
 
     # Run through the tokens
-    for tag, key in tokens:
+    for token in tokens:
+        tag, key = token
         # Set the current scope
         current_scope = scopes[0]
 
@@ -354,11 +355,15 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
 
             # Find what to pad the partial with
             left = output.rpartition('\n')[2]
-            part_padding = padding
-            if left.isspace():
-                part_padding += left
+            if hasattr(token, 'indentation'):
+                indentation = token.indentation
+            else:
+                # Hand-written token sequences have no source-line metadata.
+                indentation = left if left.isspace() else None
+            standalone = indentation is not None
+            part_padding = padding + indentation if standalone else ''
 
-            # Render the partial
+            # Render the partial.
             part_out = render(template=partial, partials_path=partials_path,
                               partials_ext=partials_ext,
                               partials_dict=partials_dict,
@@ -366,10 +371,15 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                               padding=part_padding, scopes=scopes,
                               warn=warn, keep=keep)
 
-            # If the partial was indented
-            if left.isspace():
-                # then remove the spaces from the end
-                part_out = part_out.rstrip(' \t')
+            if standalone:
+                # Drop only padding added after a final newline, then resume
+                # at the parent's indentation instead of the child's.
+                if part_padding and part_out.endswith('\n' + part_padding):
+                    part_out = part_out[:-len(part_padding)]
+                if part_out:
+                    part_out += padding
+                elif indentation:
+                    output = output[:-len(indentation)]
 
             # Add the partials output to the ouput
             if python3:
