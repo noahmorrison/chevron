@@ -57,11 +57,15 @@ optional arguments:
                         The default right delimiter, "}}" by default.
 ```
 
+`chevron.render()` returns the rendered text as a string. Assign the result to a
+variable or pass it to `print()` to display it.
+
 Python usage with strings
 ```python
 import chevron
 
-chevron.render('Hello, {{ mustache }}!', {'mustache': 'World'})
+rendered = chevron.render('Hello, {{ mustache }}!', {'mustache': 'World'})
+print(rendered)  # Hello, World!
 ```
 
 Python usage with file
@@ -69,7 +73,7 @@ Python usage with file
 import chevron
 
 with open('file.mustache', 'r') as f:
-    chevron.render(f, {'mustache': 'World'})
+    rendered = chevron.render(f, {'mustache': 'World'})
 ```
 
 Python usage with unpacking
@@ -84,7 +88,7 @@ args = {
   }
 }
 
-chevron.render(**args)
+rendered = chevron.render(**args)
 ```
 
 chevron supports partials (via dictionaries)
@@ -99,7 +103,7 @@ args = {
     }
 }
 
-chevron.render(**args)
+rendered = chevron.render(**args)
 ```
 
 chevron supports partials (via the filesystem)
@@ -117,7 +121,7 @@ args = {
 }
 
 # ./partials/thing.ms will be read and rendered
-chevron.render(**args)
+rendered = chevron.render(**args)
 ```
 
 chevron supports lambdas
@@ -144,7 +148,7 @@ args = {
     }
 }
 
-chevron.render(**args)
+rendered = chevron.render(**args)
 ```
 
 INSTALL
