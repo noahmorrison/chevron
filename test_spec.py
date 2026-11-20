@@ -142,6 +142,33 @@ class ExpandedCoverage(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_dictionary_views_as_sections(self):
+        data = collections.OrderedDict([('a', 'one'), ('b', 'two')])
+        template = '{{#items}}({{.}}){{/items}}'
+        for values, expected in ((data.values(), '(one)(two)'),
+                                 (data.keys(), '(a)(b)')):
+            self.assertEqual(
+                chevron.render(template, {'items': values}),
+                expected)
+
+    def test_reusable_iterable_sections(self):
+        class Values(object):
+            def __iter__(self):
+                return iter(('one', 'two'))
+
+        template = '{{#items}}({{.}}){{/items}}'
+        self.assertEqual(chevron.render(template + template,
+                                        {'items': Values()}),
+                         '(one)(two)(one)(two)')
+
+    def test_mapping_and_string_sections_keep_their_scope(self):
+        self.assertEqual(chevron.render('{{#item}}{{name}}{{/item}}',
+                                        {'item': {'name': 'value'}}), 'value')
+        self.assertEqual(chevron.render('{{#item}}{{.}}{{/item}}',
+                                        {'item': 'value'}), 'value')
+        self.assertEqual(chevron.render('{{^item}}empty{{/item}}',
+                                        {'item': {}.values()}), 'empty')
+
     def test_main(self):
         result = chevron.main('tests/test.mustache', 'tests/data.json',
                               partials_path='tests')
