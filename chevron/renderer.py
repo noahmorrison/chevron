@@ -4,9 +4,9 @@ import io
 from os import linesep, path
 
 try:
-    from collections.abc import Sequence, Iterator, Callable
+    from collections.abc import Sequence, Iterable, Mapping, Callable
 except ImportError:  # python 2
-    from collections import Sequence, Iterator, Callable
+    from collections import Sequence, Iterable, Mapping, Callable
 try:
     from .tokenizer import tokenize
 except (ValueError, SystemError):  # python 2
@@ -299,10 +299,10 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 else:  # python 2
                     output += rend.decode('utf-8')
 
-            # If the scope is a sequence, an iterator or generator but not
-            # derived from a string
-            elif isinstance(scope, (Sequence, Iterator)) and \
-                    not isinstance(scope, string_type):
+            # Iterate containers and views, preserving mappings and strings
+            # as a single context for section lookups.
+            elif isinstance(scope, Iterable) and \
+                    not isinstance(scope, (string_type, Mapping)):
                 # Then we need to do some looping
 
                 # Gather up all the tags inside the section
