@@ -243,7 +243,9 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
         # If we're a no html escape tag
         elif tag == 'no escape':
             # Just lookup the key and add it
-            thing = _get_key(key, scopes, warn=warn, keep=keep, def_ldel=def_ldel, def_rdel=def_rdel)
+            # Keep missing tags unescaped for a subsequent rendering pass.
+            thing = _get_key(key, scopes, warn=warn, keep=keep,
+                             def_ldel=def_ldel + '&', def_rdel=def_rdel)
             if not isinstance(thing, unicode_type):
                 thing = unicode(str(thing), 'utf-8')
             output += thing
