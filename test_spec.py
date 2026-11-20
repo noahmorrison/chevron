@@ -529,6 +529,23 @@ class ExpandedCoverage(unittest.TestCase):
         expected = '1st {{ second }} 3rd'
         self.assertEqual(result, expected)
 
+    def test_keep_unescaped_variables(self):
+        for template in ('{{& missing}}', '{{{missing}}}'):
+            kept = chevron.render(template, keep=True)
+            self.assertEqual(kept, '{{& missing }}')
+            self.assertEqual(chevron.render(kept, {'missing': '<b>&</b>'}),
+                             '<b>&</b>')
+            self.assertEqual(chevron.render(template), '')
+            self.assertEqual(chevron.render(template, {'missing': '{{value}}'},
+                                            keep=True), '{{value}}')
+
+    def test_keep_unescaped_custom_delimiters(self):
+        args = {'def_ldel': '<%', 'def_rdel': '%>'}
+        kept = chevron.render('<%& missing %>', keep=True, **args)
+        self.assertEqual(kept, '<%& missing %>')
+        self.assertEqual(chevron.render(kept, {'missing': '<b>&</b>'}, **args),
+                         '<b>&</b>')
+
     # https://github.com/noahmorrison/chevron/pull/94
     def test_keep_from_partials(self):
         args = {
