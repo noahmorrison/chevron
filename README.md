@@ -45,7 +45,7 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -v, --version         show program's version number and exit
-  -d DATA, --data DATA  The json data file
+  -d DATA, --data DATA  The json data file, or - for standard input
   -p PARTIALS_PATH, --path PARTIALS_PATH
                         The directory where your partials reside
   -e PARTIALS_EXT, --ext PARTIALS_EXT
@@ -56,6 +56,14 @@ optional arguments:
   -r DEF_RDEL, --right-delimiter DEF_RDEL
                         The default right delimiter, "}}" by default.
 ```
+
+Use `--data -` to read data from a pipe while loading the template from a file:
+
+```sh
+printf '{"mustache": "World"}' | chevron hello.mustache --data -
+```
+
+Omitting `--data` renders the template with an empty data object.
 
 Python usage with strings
 ```python
