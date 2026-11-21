@@ -6,6 +6,7 @@ import unittest
 import os
 import json
 import io
+import subprocess
 
 import chevron
 
@@ -64,6 +65,49 @@ for spec in SPECS:
 
 
 class ExpandedCoverage(unittest.TestCase):
+
+    def run_cli(self, args, data=b''):
+        process = subprocess.Popen(
+            [sys.executable, '-c',
+             'from chevron import cli_main; cli_main()'] + args,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate(data)
+        return process.returncode, stdout.replace(b'\r\n', b'\n'), stderr
+
+    def test_cli_data_from_stdin(self):
+        code, stdout, stderr = self.run_cli(
+            ['tests/cli.mustache', '--data', '-'], b'{"name": "World"}')
+        self.assertEqual(code, 0, stderr)
+        self.assertEqual(stdout, b'Hello, World!\n')
+
+    def test_cli_without_data(self):
+        code, stdout, stderr = self.run_cli(['tests/cli.mustache'])
+        self.assertEqual(code, 0, stderr)
+        self.assertEqual(stdout, b'Hello, !\n')
+
+    def test_cli_still_validates_data_filename(self):
+        code, stdout, stderr = self.run_cli(
+            ['tests/cli.mustache', '--data', 'tests/nonexistent.json'])
+        self.assertEqual(code, 2)
+        self.assertTrue(b'does not exist' in stderr)
+
+    def test_cli_stdin_is_only_a_data_source(self):
+        code, stdout, stderr = self.run_cli(
+            ['-', '--data', 'tests/data.json'], b'Hello, World!')
+        self.assertEqual(code, 2)
+        self.assertTrue(b'does not exist' in stderr)
+
+    def test_main_does_not_close_stdin(self):
+        original_stdin = sys.stdin
+        data = io.StringIO(u'{"name": "World"}')
+        try:
+            sys.stdin = data
+            self.assertEqual(chevron.main('tests/cli.mustache', '-'),
+                             'Hello, World!\n')
+            self.assertFalse(data.closed)
+        finally:
+            sys.stdin = original_stdin
 
     def test_unclosed_sections(self):
         test1 = {

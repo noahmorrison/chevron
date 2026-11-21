@@ -15,7 +15,9 @@ def main(template, data=None, **kwargs):
     with io.open(template, 'r', encoding='utf-8') as template_file:
         yaml_loader = kwargs.pop('yaml_loader', None) or 'SafeLoader'
 
-        if data is not None:
+        if data == '-':
+            data = _load_data(sys.stdin, yaml_loader)
+        elif data is not None:
             with io.open(data, 'r', encoding='utf-8') as data_file:
                 data = _load_data(data_file, yaml_loader)
         else:
@@ -57,6 +59,9 @@ def cli_main():
         else:
             return arg
 
+    def is_data_file_or_pipe(arg):
+        return arg if arg == '-' else is_file_or_pipe(arg)
+
     parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument('-v', '--version', action='version',
@@ -66,8 +71,8 @@ def cli_main():
                         type=is_file_or_pipe)
 
     parser.add_argument('-d', '--data', dest='data',
-                        help='The json data file',
-                        type=is_file_or_pipe, default={})
+                        help='The json data file, or - for standard input',
+                        type=is_data_file_or_pipe, default=None)
 
     parser.add_argument('-y', '--yaml-loader', dest='yaml_loader',
                         help=argparse.SUPPRESS)
