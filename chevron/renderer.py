@@ -203,6 +203,10 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
     if scopes is None:
         scopes = [data]
 
+    # The initial scope is active even when it is a falsy sequence item.
+    # Only scopes entered by this render call can suppress their contents.
+    initial_scope_depth = len(scopes)
+
     # Run through the tokens
     for tag, key in tokens:
         # Set the current scope
@@ -213,8 +217,8 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
             # Pop out of the latest scope
             del scopes[0]
 
-        # If the current scope is falsy and not the only scope
-        elif not current_scope and len(scopes) != 1:
+        # If a section entered by this call has a falsy scope
+        elif not current_scope and len(scopes) > initial_scope_depth:
             if tag in ['section', 'inverted section']:
                 # Set the most recent scope to a falsy value
                 # (I heard False is a good one)
@@ -311,7 +315,7 @@ def render(template='', data={}, partials_path='.', partials_ext='mustache',
                 tags = []
                 tags_with_same_key = 0
                 for tag in tokens:
-                    if tag == ('section', key):
+                    if tag in (('section', key), ('inverted section', key)):
                         tags_with_same_key += 1
                     if tag == ('end', key):
                         tags_with_same_key -= 1
