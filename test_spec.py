@@ -65,6 +65,64 @@ for spec in SPECS:
 
 class ExpandedCoverage(unittest.TestCase):
 
+    def test_false_like_sequence_items(self):
+        values = [False, 0, 0.0, '', []]
+        for data in (values, tuple(values), iter(values)):
+            self.assertEqual(
+                chevron.render('{{#.}}({{.}}){{/.}}{{^.}}empty{{/.}}', data),
+                '(False)(0)(0.0)()([])')
+
+    def test_nested_empty_arrays(self):
+        template = ('{{#arrays}}\n'
+                    '[{{#.}}{{.}}{{/.}}] is '
+                    '{{^.}}empty{{/.}}{{#0}}non empty{{/0}}\n'
+                    '{{/arrays}}')
+        self.assertEqual(
+            chevron.render(template, {'arrays': [[1, 2, 3], []]}),
+            '[123] is non empty\n[] is empty\n')
+
+    def test_inverted_section_with_same_name_as_sequence(self):
+        self.assertEqual(
+            chevron.render('{{#.}}({{^.}}empty{{/.}}){{/.}}', [[], [1]]),
+            '(empty)()')
+
+    def test_false_like_items_can_lookup_parent_context(self):
+        self.assertEqual(
+            chevron.render('{{#items}}[{{name}}]{{/items}}',
+                           {'items': [False, 0, '', [], {}], 'name': 'parent'}),
+            '[parent][parent][parent][parent][parent]')
+
+    def test_sections_within_false_like_items(self):
+        self.assertEqual(
+            chevron.render(
+                '{{#items}}({{#enabled}}yes{{/enabled}}'
+                '{{^enabled}}no{{/enabled}}){{/items}}',
+                {'items': [False, 0, {}, {'enabled': True}], 'enabled': False}),
+            '(no)(no)(no)(yes)')
+
+    def test_partials_with_false_like_items(self):
+        self.assertEqual(
+            chevron.render('{{#items}}{{>item}}{{/items}}',
+                           {'items': [False, 0]},
+                           partials_dict={
+                               'item': '({{.}}){{#missing}}bad{{/missing}}'}),
+            '(False)(0)')
+
+    def test_lambda_renders_false_like_items(self):
+        self.assertEqual(
+            chevron.render('{{#items}}{{#wrap}}{{.}}{{/wrap}}{{/items}}',
+                           {'items': [False, 0],
+                            'wrap': lambda text, render: '(' + render(text) + ')'}),
+            '(False)(0)')
+
+    def test_skipped_sections_still_skip_nested_content(self):
+        self.assertEqual(
+            chevron.render(
+                'before{{#missing}}bad{{^missing}}bad{{/missing}}'
+                '{{#truthy}}bad{{/truthy}}{{/missing}}after',
+                {'truthy': True}),
+            'beforeafter')
+
     def test_unclosed_sections(self):
         test1 = {
             'template': '{{# section }} oops {{/ wrong_section }}'
